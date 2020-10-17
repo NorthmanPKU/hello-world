@@ -1,0 +1,23 @@
+
+#include<iostream>
+#include<stdlib.h>
+#include<iomanip>
+#include<cmath>
+#include<math.h>
+
+using namespace std;
+
+int main()
+{
+    char a=0;
+    cin>>a;
+    if(a>=65&&a<=90)
+        cout<<"upper case";
+    else if(a>=97&&a<=122)
+        cout<<"lower case";
+    else
+        cout<<"invalid input";
+    
+    return 0;
+}
+//YBG
