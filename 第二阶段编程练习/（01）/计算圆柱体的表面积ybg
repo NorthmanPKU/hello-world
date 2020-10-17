@@ -1,0 +1,26 @@
+读取圆柱体的底面半径r和高h，求圆柱体的表面积。
+关于输入
+输入半径r和高h，均是双精度浮点数
+关于输出
+输出的值也是双精度浮点数，保留小数点后3位，格式见样例。
+例子输入
+3.5 9
+例子输出
+Area = 274.889
+提示
+必须取pi＝3.14159。
+#include<iostream>
+#include<stdlib.h>
+#include<iomanip>
+#include<cmath>
+#include<math.h>
+
+using namespace std;
+#define pi 3.14159
+int main()
+{
+    double r=0,h=0;
+    cin>>r>>h;
+    cout<<fixed<<setprecision(3)<<"Area = "<<2*pi*r*h+2*pi*r*r;
+    return 0;
+}
