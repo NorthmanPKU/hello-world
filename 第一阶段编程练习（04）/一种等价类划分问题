@@ -1,0 +1,36 @@
+// 你在line15第一次交的时候设置成了100 所以提交失败
+#include<iostream>
+#include<stdlib.h>
+#include<iomanip>
+#include<cmath>
+#include<math.h>
+
+using namespace std;
+
+int main()
+{
+
+    int a = 0, b = 0, k = 0, p = 1,num=0,x=0;
+    char c, d;
+    int z[1000];
+    cin >> a >> c >> b >> d >> k;
+    for (int q = k; q <b; q = p*k) {
+        num = 0;
+        x = 0;
+        for (int i = a; i < b; i++) {
+            if (i / 1000 + (i / 100 - 10 * (i / 1000)) + i / 10 - (i / 100) * 10 + i % 10 == q) {
+                z[num] = i;
+                num += 1;
+            }
+        }
+            for (int y = 0; y < num - 1; y++) {
+                cout << z[y] << ",";
+                x = 1;
+            }
+            if(x==1||num==1)
+            cout << z[num-1] << endl;
+        p += 1;
+//        cout<<"p="<<p<<endl;
+    }
+        return 0;
+}
