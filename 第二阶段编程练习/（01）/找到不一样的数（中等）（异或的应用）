@@ -1,0 +1,26 @@
+
+#include<iostream>
+#include<stdlib.h>
+#include<iomanip>
+#include<cmath>
+#include<math.h>
+
+using namespace std;
+
+int main()
+{
+    int n=0,num=0;
+    cin>>n;
+    char a[10000];
+    int b[n];
+    for(int p=0;p<n;p++){
+        cin>>b[p];
+    }
+    
+    for(int i=0;i<n;i++){
+        num^=b[i];
+    }
+    cout<<num;
+    return 0;
+    
+}
