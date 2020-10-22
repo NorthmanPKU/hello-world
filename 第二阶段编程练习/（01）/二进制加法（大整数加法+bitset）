@@ -1,0 +1,133 @@
+描述
+给定两个二进制数 a 和 b ，计算 a + b 之和，输出和的二进制表示。
+关于输入
+输入有 2n + 1 行，第一行是 n，其余2n行，每两行一组，第一行是二进制数 a，第二行是二进制数 b；a 和 b 都大于 0 且不含前导 0 ，a、b 的位数不超过 100 位。
+关于输出
+输出 n 行 a + b 的结果，用二进制表示。
+例子输入
+2
+1110011
+11111111000
+1010101
+101010
+例子输出
+100001101011
+1111111
+
+错误示范一：没意识到题中的二进制数大到离谱：
+#include<iostream>
+#include<stdlib.h>
+#include<iomanip>
+#include<cmath>
+#include<math.h>
+
+using namespace std;
+
+int main()
+{
+    char a[1000],b[1000],d[1];
+    int n=0;
+    cin>>n;
+    int c[n][1000],l[n];
+    for(int k=0;k<n;k++){
+        for(int i=0;i<1000;i++){
+            c[k][i]=3;
+        }
+    }
+    for(int k=0;k<n;k++){
+        for(int i=0;i<1000;i++){
+            c[k][i]=3;
+        }
+    }
+    gets(d);
+    for(int p=0;p<n;p++){
+        int l1=0;
+        int l2=0;
+        for(int i=0;i<1000;i++){
+            a[i]=',';
+        }
+        for(int i=0;i<1000;i++){
+            b[i]=',';
+        }
+        
+        gets(a);
+        gets(b);
+        for(int q=0;q<1000;q++){
+            if(a[q]=='1'||a[q]=='0')
+                l1++;
+//            cout<<a[q];
+        }
+//        cout<<endl;
+        for(int q=0;q<1000;q++){
+            if(b[q]=='1'||b[q]=='0')
+                l2++;
+//            cout<<b[q];
+        }
+//        cout<<endl;
+//        cout<<"l1="<<l1<<"l2="<<l2<<endl;
+        long long num1=0,num2=0;
+        for(int i=0;i<l1;i++){
+            if(a[i]=='1')
+                num1+=pow(2.0,l1-i-1);
+        }
+        for(int i=0;i<l2;i++){
+            if(b[i]=='1')
+                num2+=pow(2.0,l2-i-1);
+//            cout<<"a";
+        }
+//        cout<<"num1="<<num1<<"num2="<<num2<<endl;
+        double sum=num1+num2;
+        cout<<"sum="<<sum<<endl;
+        l[p]=0;
+        for(int i=0;i<1000;i++){
+            c[p][i]=sum%2;
+            sum/=2;
+            l[p]++;
+//          cout<<c[p][i]<<endl;
+            if(sum==1){
+                c[p][i+1]=1;
+                l[p]++;
+                break;
+            }
+        }
+    }
+//    cout<<"haha"<<endl;
+    for(int p=0;p<n;p++){
+        for(int i=l[p]-1;i>=0;i--){
+            if(c[p][i]==0||c[p][i]==1)
+            cout<<c[p][i];
+        }
+        cout<<endl;
+    }
+    return 0;
+    
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+何神之技：
+using namespace std;
+
+char str1[105],str2[105];
+int ans[105];
+int main() {
+    int T;
+    cin>>T;
+    while(T--) {
+        scanf("%s%s",str1+1,str2+1);
+        int n=max(strlen(str1+1),strlen(str2+1));
+        for(int i=1;i<=n+1;i++) ans[i]=0;
+        
+        reverse(str1+1,str1+1+strlen(str1+1));
+        reverse(str2+1,str2+1+strlen(str2+1));
+        for(int i=strlen(str1+1)+1;i<=n;i++) str1[i]='0';
+        for(int i=strlen(str2+1)+1;i<=n;i++) str2[i]='0';
+        for(int i=1;i<=n;i++) {
+            ans[i] += str1[i]+str2[i] -2*'0';
+            ans[i+1]+=ans[i]/2;
+            ans[i]=ans[i]&1;
+        }
+        if(ans[n+1]) n++;
+        for(int i=n;i>=1;i--) cout<<ans[i];cout<<"\n";
+    }
+    return 0;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
