@@ -1,0 +1,35 @@
+描述
+编程，输入一个字符串，输出该字符串是否回文。
+关于输入
+输入为一行字符串（字符串中没有空白字符，字符串长度不超过100）。
+关于输出
+如果字符串是回文，输出yes；否则，输出no。
+例子输入
+abcdedcba
+例子输出
+yes
+提示
+回文是指顺读和倒读都一样的字符串。
+#include <iostream>
+#include<algorithm>
+using namespace std;
+int main(){
+    int i=0;
+    char a[100]={0};
+    cin.get(a,100,'\n');
+    for(;a[i]!=0;i++) ;
+    
+    string str(a);
+    reverse(a,a+i);
+    bool t=true;
+    for(int q=0;q<i;q++){
+        if(a[q]!=str[q]) {
+            t=false;
+            break;
+        }
+//        cout<<"k";
+    }
+    if(t) cout<<"yes";
+    else cout<<"no";
+    return 0;
+}
