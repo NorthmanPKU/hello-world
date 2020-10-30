@@ -1,0 +1,39 @@
+描述
+编写程序，对给定的字符串按如下的条件进行排序，并输出排序后的结果。 
+
+条件：从字符串中间一分为二，左边部分按字符的ASCII值降序排序，右边部分保持不变,然后将左边部分与右边部分进行交换。如果原字符串长度为奇数，则最中间的字符不参加处理，字符仍放在原位置上。 
+关于输入
+输入为一个字符串
+关于输出
+输出为按要求排序后的结果
+例子输入
+abcdhgfe
+例子输出
+hgfedcba
+#include <iostream>
+#include<algorithm>
+#include<cstring>
+#include<string.h>
+#include<string>
+using namespace std;
+int main(){
+    char a[1000]={};
+    cin.getline(a,100,'\n');
+    string c(a,0,strlen(a)/2);
+    string d(a,strlen(a)/2,strlen(a));
+//    cout<<c<<endl<<d<<endl<<strlen(a)<<endl<<c.length()<<endl;
+    for(int i=0;i<c.length();i++){
+        for(int q=i+1;q<c.length();q++){
+            if(c[i]<c[q]) swap(c[i],c[q]);
+        }
+    }
+        if(strlen(a)%2==0)
+        cout<<d+c;
+        else{
+            char m=d[0];
+            d.erase(0,1);
+            cout<<d<<m<<c;
+        }
+
+    return 0;
+}
