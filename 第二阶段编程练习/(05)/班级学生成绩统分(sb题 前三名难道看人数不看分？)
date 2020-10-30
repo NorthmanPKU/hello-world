@@ -1,0 +1,55 @@
+#include <iostream>
+#include<algorithm>
+#include<string>
+using namespace std;
+int main(){
+    int n=0;
+    cin>>n;
+    int a[100000]={0},b[100000]={0},rank[3]={8,8,8},ranmark[3]={8,8,8};
+    for(int i=0;i<n;i++){
+        int id=0,y=0,s=0;
+        cin>>id>>y>>s;
+        a[id-1]=y+s;
+        b[id-1]=a[id-1];
+    }
+    sort(a,a+n);
+    reverse(a, a+n);
+//    for(int i=0;i<n;i++){
+//        cout<<a[i]<<" "<<b[i]<<endl;
+//    }
+    rank[0]=a[0];
+    int u=1;
+    for(int i=1;i<n;i++){
+        if(a[i]!=a[i-1]&&u<3){
+            rank[u]=a[i];
+            u++;
+        }
+    }
+    int pp=0;
+    for(int u=0;u<n&&pp<3;u++){
+        if(b[u]==rank[0]&&pp<3){
+            cout<<u+1<<" "<<b[u]<<endl;
+            pp++;
+        }
+    }
+    
+    for(int u=0;u<n&&pp<3;u++){
+        if(b[u]==rank[1]){
+            cout<<u+1<<" "<<b[u]<<endl;
+            pp++;
+        }
+    }
+        
+    for(int u=0;u<n&&pp<3;u++){
+        if(b[u]==rank[2]){
+            cout<<u+1<<" "<<b[u]<<endl;
+        }}
+    
+        
+    
+//
+//    for(int i=0;i<3;i++){
+//        cout<<rank[i]<<" "<<ranmark[i]<<endl;
+//    }
+    return 0;
+}
