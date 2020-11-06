@@ -1,0 +1,64 @@
+描述
+各种语言都充满了缩略语。如汉语上的“非典（非典型性肺炎）”，“北大（北京大学）”，英语上的“SARS(Severe Atypical Respiratory Syndrome)”。假定某个字符串A中的每个字符出现在另一个字符串S中不同的位置（大小写完全相同），且字符串 A 中字符的前后关系在 S 中不发生改变，同时，A的长度小于S的长度，就认为 A 是 S 的一个可能缩略语。现在任意给定两对串，请判断前面的串是否是后面串的可能缩略语。若是，则输出 YES，否则，输出 NO
+关于输入
+第1行为串对数目n； 
+后面 n 行中，每行是一对字符串，其间以冒号间隔（判断左边的串是否是右边串可能的缩略语），假定左边串的长度不大于30个字符，右边串的长度不大于300个字符。
+关于输出
+若有n对，则有 n 行输出，每行对应判断的结果。若是可能的缩略语，输出YES；若否，输出 NO
+例子输入
+6
+
+AB:ACDEbFBkBD
+
+AR:ACDBrT
+
+SARS:Severe Atypical Respiratory Syndrome
+
+ACDEFBD:AB
+
+ABD:ACDEDkBY
+
+ABBR:ACDEDkBRT
+例子输出
+YES
+
+NO
+
+YES
+
+NO
+
+NO
+
+NO
+#include<iostream>
+
+using  namespace std;
+bool sl(){
+    char a[300];
+    char b[300];
+    cin.getline(a,300,':');
+    cin.getline(b,300);
+    int n=0;
+    int tem=0;
+    for(int i=0;i<strlen(a);i++){
+        for(;n<strlen(b);n++){
+            if(a[i]==b[n]){tem+=1;n++;break;}
+        }
+    }
+    if(tem==strlen(a)&&strlen(a)<strlen(b)) return 1;
+    else return 0;
+}
+int main(){
+    int n=0;
+    cin>>n;
+    cin.get();
+    while(n){
+        if(sl())
+            cout<<"YES"<<endl;
+        else
+            cout<<"NO"<<endl;
+        n--;
+            }
+    return 0;
+}
