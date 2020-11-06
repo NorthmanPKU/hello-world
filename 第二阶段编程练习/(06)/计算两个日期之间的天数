@@ -1,0 +1,85 @@
+描述
+给定两个年月日，计算之间的天数. 
+比如2010-1-1和2010-1-3 之间差2天。 
+
+year=1,2,...,3000. 
+
+补充： 
+闰年是：(year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)， 
+闰年的2月份有29天。
+关于输入
+第一行 
+startYear startMonth startDay 
+第二行 
+endYear endMonth endDay
+关于输出
+输出只有一行是两个日期之间的天数
+例子输入
+2008 1 1
+
+2009 1 1
+例子输出
+366
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+using namespace std;
+int ry[13]={0,31,29,31,30,31,30,31,31,30,31,30,31},py[13]={0,31,28,31,30,31,30,31,31,30,31,30,31};
+bool ryear(int year){
+    if((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) return 1;
+    else return 0;
+}
+int daynum(int y1,int m1,int d1){
+    int day1=0;
+    if(ryear(y1)){
+        day1=0;
+        for(int i=1;i<m1;i++){
+            day1+=ry[i];
+        }
+        day1+=d1;
+    }
+    else{
+        day1=0;
+        for(int i=1;i<m1;i++){
+            day1+=py[i];
+        }
+        day1+=d1;
+    }
+    return day1;
+}
+int reday(int y1,int m1,int d1){
+    int day1=0;
+    if(ryear(y1)){
+        day1=0;
+        for(int i=m1+1;i<=12;i++){
+            day1+=ry[i];
+        }
+        day1+=ry[m1]-d1;
+    }
+    else{
+        day1=0;
+        for(int i=m1+1;i<=12;i++){
+            day1+=py[i];
+        }
+        day1+=py[m1]-d1;
+    }
+    return day1;
+}
+int main(){
+    int y1=0,m1=0,d1=0,y2=0,m2=0,d2=0,day=0;
+    cin>>y1>>m1>>d1>>y2>>m2>>d2;
+    if(y1!=y2){
+        for(int y=y1+1;y<y2;y++){
+            if(ryear(y)) day+=366;
+            else day+=365;
+        }
+        day=day+reday(y1,m1,d1)+daynum(y2, m2, d2);
+    }
+    else{
+        int day1=daynum(y1, m1, d1);
+        int day2=daynum(y2, m2, d2);
+        day=day2-day1;
+    }
+    cout<<day;
+    return 0;
+}
