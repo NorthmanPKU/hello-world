@@ -1,0 +1,62 @@
+来源	计算概论医学部助教郝雷朋
+描述
+菌落的数量对医生来说一直是一个很重要的数据，但是细菌数量太多人工又无法计数，因此你能写个程序帮助医生完成这个任务么？ 
+有一张n*m的菌落的显微镜照片，每个格子是0(表示当前位置无细菌)或者1(表示当前位置是细菌)，请你输出这张照片中菌落的数量。 
+如果一个细菌，其上下左右四个方向有细菌的话，则这些相邻的细菌属于一个菌落。 
+例如给定如下照片： 
+0 0 1 0 
+0 1 0 1 
+1 1 0 0 
+则给出的照片一共有A,B,C三个菌落，如下： 
+0 0 A 0 
+0 B 0 C 
+B B 0 0 
+
+关于输入
+输入数据第一行两个整数n,m（1<=n,m<=100）,表示照片的长和宽。 
+接下来n行，每行都有m个用空格隔开的整数（0或者1），表示这一照片行的状态（有无细菌）。
+关于输出
+输出一个整数，表示该张照片中菌落数量
+例子输入
+3 5
+
+0 0 1 0 1
+
+0 1 0 1 1
+
+1 1 0 0 1
+
+例子输出
+3
+
+#include <iostream>
+using namespace std;
+#define MAX 105
+int Photo[MAX][MAX]={0};
+int ShiLi[MAX][MAX]={0};
+int cnt=1;
+void Judge(int i,int j){
+    if(Photo[i][j]==1&&ShiLi[i][j]==0){
+        ShiLi[i][j]=cnt;
+        Judge(i+1,j);
+        Judge(i-1,j);
+        Judge(i,j+1);
+        Judge(i,j-1);
+    }
+}
+int main(){
+    int m,n;
+    cin>>m>>n;
+    for(int i=1;i<=m;i++)
+        for(int j=1;j<=n;j++)
+            cin>>Photo[i][j];
+    for(int i=1;i<=m;i++)
+        for(int j=1;j<=n;j++){
+            if(Photo[i][j]==1&&ShiLi[i][j]==0){
+                Judge(i,j);
+                cnt++;
+            }
+        }
+    cout<<cnt-1;
+    return 0;
+}
