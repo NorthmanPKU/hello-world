@@ -1,0 +1,60 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+using namespace std;
+#define MAX_N 1100
+char a[MAX_N];
+char s1[MAX_N]="\0";//存放符号
+char s2[MAX_N]="\0";//存放数值
+int n1=0,n2=0;
+char calc(char x){
+    switch(x){
+        case '&':{
+            char tem1=s2[--n2],tem2=s2[--n2];
+        if(tem1=='V'&&tem2=='V') return 'V';
+        else return 'F';
+        }break;
+        case '|':{
+            char tem1=s2[--n2],tem2=s2[--n2];
+            if(tem1=='F'&&tem2=='F') return 'F';
+        else return 'V';
+        }break;
+        default:{
+            char tem=s2[--n2];
+            if(tem=='V') return 'F';
+        else return 'V';}break;
+}
+}
+int seq[1000]={0};
+int main(){
+    while(cin.getline(a,10000)){
+        memset(s1,'\0',sizeof(s1));
+        memset(s2,'\0',sizeof(s2));
+        n1=0;n2=0;
+        for(int i=0;i<=strlen(a);i++){
+            //cout<<"此时的数组为："<<s2<<endl;
+            //cout<<"此时的符号组为："<<s1<<endl;
+            if(a[i]=='V'||a[i]=='F'){
+                s2[n2++]=a[i];
+            }
+            else if(a[i]=='(') s1[n1++]=a[i];
+            else if(a[i]=='&'||a[i]=='|'||a[i]=='!'){
+                while(s1[n1-1]<a[i]&&(s1[n1-1]=='&'||s1[n1-1]=='!')) {char tem=calc(s1[--n1]);
+                    s2[n2++]=tem;
+                }
+                s1[n1++]=a[i];
+            }
+            else if(a[i]==')'||a[i]=='\0'){
+                char tem3=s1[--n1];
+                while(tem3!='('&&n1>=0){
+                    char tem=calc(tem3);
+                    s2[n2++]=tem;
+                    tem3=s1[--n1];
+                }
+            }
+        }
+        cout<<s2[0]<<endl;
+    }
+    return 0;
+}
+//(F&F|V|!V&!F&!(F|F&V)) //( V | V ) & F & ( F| V)
