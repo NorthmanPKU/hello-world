@@ -1,0 +1,20 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+using namespace std;
+int cnt=1,n=0;
+void func(int a,int b){
+    if(a*5>n) return;
+    else if(5*a+2*b>n) {a++;b=0;func(a,b);}
+    else{cout<<setfill('0')<<setw(3)<<cnt;
+    cout<<setfill(' ')<<setw(12)<<n-5*a-2*b<<setfill(' ')<<setw(12)<<b<<setfill(' ')<<setw(12)<<a<<endl;
+    cnt++;
+    b++;
+        func(a, b);}
+    
+}
+int main(){
+    cin>>n;
+    func(0,0);
+    return 0;
+}
