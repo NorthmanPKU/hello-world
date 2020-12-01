@@ -1,0 +1,22 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+using namespace std;
+int Fj(int n,int start){
+    int cnt=0;
+    for(int i=start;i*i<=n;i++){
+        if(n%i==0)
+            cnt+=Fj(n/i,i);
+    }
+    return cnt+1;
+}
+int main(){
+    int n=0;
+    cin>>n;
+    for(int i=0;i<n;i++){
+        int m=0;
+        cin>>m;
+        cout<<Fj(m,2)<<endl;
+    }
+    return 0;
+}
