@@ -1,0 +1,41 @@
+#include<iostream>
+#include<iomanip>
+using namespace std;
+#define MAX_N 40
+#define MAX_M 1000
+char sign[2]={',','\n'};
+int in[MAX_N]={0};
+int k=0,m=0,cnt=0;
+char laji;
+void jinw(int x,int t){
+    if(x==0) return;
+    int tem=(x+in[9+t])/k;
+    in[9+t]=(in[9+t]+x)%k;
+    //cout<<"第"<<t<<"位是"<<in[9+t]<<endl;
+//    cout<<endl<<"此时tem为"<<tem<<" t为"<<t<<" 最后一位为"<<in[9+t]<<" 此时数为："<<endl;
+//    for(int j=10;j<10+cnt;j++) cout<<in[j];
+    t--;
+    jinw(tem,t);
+}
+int main(){
+    cin>>k>>laji>>m>>laji;
+    while(laji=getchar()){
+        if(laji<'0'||laji>'9') break;
+        in[10+cnt]=laji-'0';
+        cnt++;
+//        cout<<cnt<<endl;
+    }
+    for(int i=1;i<=m;i++){
+        jinw(1,cnt);
+        bool start=0;
+        for(int j=0;j<10+cnt;j++){
+            if(!start&&in[j]==0) continue;
+            else{
+                start=1;
+                cout<<in[j];
+            }
+        }
+        cout<<sign[i%5==0||i==m];
+    }
+    return 0;
+}
