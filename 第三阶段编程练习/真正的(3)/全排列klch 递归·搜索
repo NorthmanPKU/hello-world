@@ -1,0 +1,30 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+using namespace std;
+#define MAX_N 7
+char a[MAX_N]="\0";
+bool visited[7]={0};
+int seq[7]={0};
+void func(int depth){
+    if(a[depth]=='\0'){
+        for(int i=0;a[i]!='\0';i++){
+            cout<<a[seq[i]];
+        }
+        cout<<endl;
+        return;
+    }
+    for(int i=0;a[i]!='\0';i++){
+        if(!visited[i]){
+            visited[i]=1;
+            seq[depth]=i;
+            func(depth+1);
+            visited[i]=0;
+        }
+    }
+}
+int main(){
+    cin>>a;
+    func(0);
+    return 0;
+}
