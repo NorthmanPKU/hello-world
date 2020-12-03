@@ -1,0 +1,32 @@
+#include <iostream>
+#include <cstring>
+#include <cmath>
+using namespace std;
+
+#define MAX_LEN 200000
+
+int a[MAX_LEN]={0};
+
+int main()
+{
+    int k=0,x=0;
+    char laji;
+    cin>>k>>laji>>x;
+    a[k]=1;
+    if(x<k){
+        cout<<"NO";
+        return 0;
+    }
+    for(int i=k;i<=100000;i++){
+        if(a[i]){
+            if(i*2+1<=100000) a[i*2+1]=1;
+            if(i*3+1<=100000) a[i*3+1]=1;
+            if(i==x){
+                cout<<"YES";
+                return 0;
+            }
+        }
+    }
+    cout<<"NO";
+    return 0;
+}
