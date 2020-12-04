@@ -1,0 +1,29 @@
+// ConsoleApplication2.cpp : 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+
+#include<cmath>
+#include<iostream>
+
+char boy,line[110];
+int match(int i) {
+	int cnt = 1;
+	for (i--; i >= 0; i--) {
+		if (line[i] == boy) cnt--;
+		else cnt++;
+		if (cnt == 0) return i;
+	}
+}
+using namespace std;
+int main()
+{
+	cin.getline(line, 110);
+	boy = line[0];
+	for (int i = 0; i < strlen(line); i++) {
+		if (line[i] != boy) cout << match(i) << " " << i << endl;
+	}
+	system("pause");
+	return 0;
+}
+
