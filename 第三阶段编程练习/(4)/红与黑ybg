@@ -1,0 +1,43 @@
+// ConsoleApplication2.cpp : 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+
+#include<iostream>
+#define MAX_N 210
+
+char a[MAX_N][MAX_N];
+int num = 0, deltx[4] = { -1,0,1,0 }, delty[4] = { 0,-1,0,1 };
+int n = 0, m = 0;
+void cnt(int x, int y) {
+
+	a[x][y] = '#';
+	num++;
+	for (int i = 0; i < 4; i++) 
+		if (x + deltx[i] >= 0 && x + deltx[i] < m && y + delty[i] >= 0 && y + delty[i] < n && a[x + deltx[i]][y + delty[i]] == '.') cnt(x+deltx[i],y+delty[i]);
+	
+}
+using namespace std;
+int main()
+{
+	cin >> n >> m;
+	while (n != 0) {
+		int x0 = 0, y0 = 0;
+		for (int i = 0; i < m; i++) 
+			for (int j = 0; j < n; j++) {
+				cin >> a[i][j];
+				if (a[i][j] == '@') {
+					x0 = i;
+					y0 = j;
+				}
+			}
+		cnt(x0, y0);
+		cout << num << endl;
+		num = 0;
+		cin >> n >> m;
+	}
+
+	system("pause");
+	return 0;
+}
+
