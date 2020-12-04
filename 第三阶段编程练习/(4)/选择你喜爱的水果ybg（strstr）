@@ -1,0 +1,31 @@
+#include <iostream>
+#include <cstring>
+
+#include <cmath>
+using namespace std;
+
+#define MAX_LEN 1002
+#define HAHAHA x+sigx[i]<n&&x+sigx[i]>=0&&y+sigy[i]<n&&y+sigy[i]>=0
+char a[MAX_LEN];
+char fruit[7][20]={"apples", "bananas", "peaches", "cherries", "pears", "oranges", "strawberries"};
+bool flag=0;
+int main()
+{
+    while(cin.getline(a,1002)){
+        for(int i=0;i<7;i++){
+            if(strstr(a,fruit[i])){
+                for(int t=0;t<strstr(a,fruit[i])-a;t++) cout<<a[t];
+                cout<<"Brussels sprouts";
+                for(int t=strlen(fruit[i])+strstr(a,fruit[i])-a;t<strlen(a);t++) cout<<a[t];
+                cout<<endl;
+                flag=1;
+                break;
+            }
+        }
+        if(!flag){
+            cout<<"You must not enjoy fruit."<<endl;
+        }
+        flag=0;
+    }
+    return 0;
+}
