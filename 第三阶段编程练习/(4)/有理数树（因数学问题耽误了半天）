@@ -1,0 +1,61 @@
+// ConsoleApplication2.cpp : 定义控制台应用程序的入口点。
+//
+
+#include "stdafx.h"
+
+#include<cmath>
+#include<iostream>
+#define MAX_N 210
+using namespace std;
+char a[MAX_N][MAX_N];
+int num = 0, deltx[4] = { -1,0,1,0 }, delty[4] = { 0,-1,0,1 };
+int n = 0, m = 0;
+int deep = 0, t = 0;
+int pow(int x, int y) {
+	if (!y) return 1;
+	int tem = y-1,tem1=x;
+	while (tem--) {
+		x *= tem1;
+
+	}
+	
+	return x;
+}
+int depth(int z, int m) {
+	if (z == 1 && m == 1) return 1;
+	else if (z > m) {
+		return 1 + depth(z - m, m);
+	}
+	else return 1 + depth(z, m - z);
+}
+int seq(int z, int m){
+	if (z == 1 && m == 1) return 0;
+	else if (z > m) {
+		t--;
+		return pow(2,deep-t)+ seq(z - m, m);
+	}
+	else {
+		t--;
+		return seq(z, m - z);
+	}
+}
+
+int main()
+{
+	cin >> n;
+	
+	while(n--){
+		int x = 0, y = 0;
+		cin >> x >> y;
+		deep = depth(x, y);
+		t = deep + 1;
+		if(deep == 1) cout << 1 << endl;
+		else
+		cout << (1-pow(2,deep-1))/(-1) + seq(x, y) + 1<<endl;
+		cout << seq(x, y)<<" "<<deep << endl;
+	}
+
+	system("pause");
+	return 0;
+}
+
