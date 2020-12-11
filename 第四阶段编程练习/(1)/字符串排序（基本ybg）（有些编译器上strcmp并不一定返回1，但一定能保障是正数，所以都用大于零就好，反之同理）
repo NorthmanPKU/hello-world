@@ -1,0 +1,35 @@
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+#define MAX_N 1020
+char aa[2]={' ','\n'};
+char a[MAX_N][MAX_N];
+int main()
+{
+    int n=0;
+    cin>>n;
+    cin.get();
+    char *p[MAX_N];
+    for(int i=0;i<n;i++){
+        cin.getline(a[i],MAX_N);
+        p[i]=a[i];
+    }
+    for(int i=n;i>0;i--){
+        for(int j=0;j<i-1;j++){
+            //cout<<p[j]<<" "<<p[j+1]<<" "<<strcmp(p[j],p[j+1])<<endl;
+            if(strcmp(p[j],p[j+1])>0){
+                //cout<<"sb"<<endl;
+                char *tem;
+                tem=p[j];
+                p[j]=p[j+1];
+                p[j+1]=tem;
+            }
+        }
+    }
+    for(int i=0;i<n;i++){
+        cout<<p[i]<<endl;
+    }
+    return 0;
+}
