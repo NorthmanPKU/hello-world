@@ -1,0 +1,54 @@
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+#define MAX_N 1020
+char aa[2]={' ','\n'};
+char a[MAX_N][MAX_N];
+struct corn{
+    int x;
+    int y;
+    int num;
+};
+int main()
+{
+    int k=0;
+    cin>>k;
+    while(k--){
+        corn a[MAX_N];
+        int m=0,n=0,t=0,cnt=0,tem=0;
+        cin>>m>>n>>t;
+        for(int i=1;i<=m;i++){
+            for(int j=1;j<=n;j++){
+                cin>>tem;
+                if(tem>0){
+                    a[cnt].x=i;
+                    a[cnt].y=j;
+                    a[cnt].num=tem;
+                    cnt++;
+                }
+            }
+        }
+        for(int w=cnt;w>0;w--){
+            for(int p=0;p<cnt-1;p++){
+                if(a[p].num<a[p+1].num){
+                    swap(a[p],a[p+1]);
+                }
+            }
+        }
+        int remt=0,x0=0,y0=0,sum=0,cnt2=0;
+        remt=t;
+        y0=a[cnt2].y;
+        while(0<=remt-(abs(a[cnt2].x-x0)+abs(a[cnt2].y-y0))-a[cnt2].x-1&&cnt2<cnt){
+            remt-=abs(a[cnt2].x-x0)+abs(a[cnt2].y-y0)+1;
+            sum+=a[cnt2].num;
+            x0=a[cnt2].x;
+            y0=a[cnt2].y;
+            cnt2++;
+            //cout<<remt<<" "<<x0<<" "<<y0<<" "<<sum<<" "<<endl;
+        }
+        cout<<sum<<endl;
+    }
+    return 0;
+}
