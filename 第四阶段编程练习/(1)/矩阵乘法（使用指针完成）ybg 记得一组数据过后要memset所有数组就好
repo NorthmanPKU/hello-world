@@ -1,0 +1,42 @@
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+#define MAX_N 100
+char aa[2]={' ','\n'};
+int main()
+{
+    int a[MAX_N][MAX_N] = { 0 }, b[MAX_N][MAX_N] = { 0 },ans[MAX_N][MAX_N] = { 0 };
+    int n = 0;
+    cin >> n;
+    while (n--) {
+        memset(a, 0, sizeof(a));
+        memset(b, 0, sizeof(a));
+        memset(ans, 0, sizeof(a));
+        int c = 0, d = 0, e = 0;
+        cin >> c >> d >> e;
+        for (int i = 0; i < c; i++)
+            for (int j = 0; j < d; j++)
+                cin >> *(*(a + i) + j);
+        for (int i = 0; i < d; i++)
+            for (int j = 0; j < e; j++)
+                cin >> *(*(b + i) + j);
+        for(int i=0;i<c;i++){
+            for(int j=0;j<e;j++){
+                for(int k=0;k<d;k++){
+                    *(*(ans+i)+j)+=*(*(a + i) + k)*(*(*(b + k) + j));
+                }
+            }
+        }
+        for(int i=0;i<c;i++){
+            for(int j=0;j<e;j++){
+                cout<<*(*(ans+i)+j)<<aa[j==e-1];
+            }
+        }
+    }
+    
+
+
+    return 0;
+}
