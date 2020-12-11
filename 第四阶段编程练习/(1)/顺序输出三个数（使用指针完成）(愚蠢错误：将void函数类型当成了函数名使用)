@@ -1,0 +1,37 @@
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+void print(double *p) {
+	if (*p - floor(*p) == 0)
+		cout << *p;
+	else
+		cout << fixed << setprecision(2) << *p;
+}
+
+
+int main()
+{
+	char ans[2] = { '\n',',' };
+	char laji;
+	double a[3] = { 0 };
+	cin >> a[0] >> laji >> a[1] >> laji >> a[2];
+
+	for(double *p=a;p<a+3;p++)
+		for (double *q = p + 1; q < a+3; q++) {
+			if (*p > *q) {
+				double tem = 0;
+				tem = *p;
+				*p = *q;
+				*q = tem;
+			}
+		}
+	for (int i = 0; i < 3; i++) {
+		print(a + i);
+		cout << ans[i != 2];
+	}
+
+
+    return 0;
+}
