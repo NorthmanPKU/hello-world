@@ -1,0 +1,82 @@
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+#include<cmath>
+#include<cstring>
+using namespace std;
+#define MAX_N 10000
+char ans[2]={',','\n'};
+struct base{
+    int a[MAX_N];
+    int len;
+    int d;
+};
+char tem[MAX_N];
+bool lkfcmp(base aa,base b){
+    if(aa.len!=b.len) return aa.len>b.len;
+    else{
+        if(aa.d!=b.d) return aa.d>b.d;
+        else{
+            return aa.a[0]>b.a[0];
+        }
+    }
+}
+int b[MAX_N]={0};
+int main()
+{
+    cout<<55555;
+    int temcnt=1,basecnt=0,acnt=0;
+    bool flag=0,maxiflag=0;
+    base lkf[MAX_N];
+    int n=0;
+    cin>>n;
+
+    for(int i=0;i<n;i++)
+        cin>>b[i];
+
+    sort(b,b+n);
+    for(int i=0;i<n;i++){
+        for(int j=i+1;j<n;j++){
+            int temd=b[j]-b[i];
+            for(int k=j+1;k<n;k++){
+                if(b[k]-b[j]==(temcnt)*temd){
+                    temcnt++;
+                    if(!flag){
+                        lkf[basecnt].a[acnt++]=b[i];
+                        lkf[basecnt].a[acnt++]=b[j];
+                        lkf[basecnt].a[acnt++]=b[k];
+                        lkf[basecnt].len=3;
+                        lkf[basecnt].d=temd;
+                        flag=1;
+                        maxiflag=1;
+                        continue;
+                    }
+                    lkf[basecnt].a[acnt++]=b[k];
+                    lkf[basecnt].len++;
+                }
+            }
+            basecnt++;
+            acnt=0;
+            temcnt=1;
+            flag=0;
+        }
+    }
+    if(!maxiflag){
+        cout<<"NO";
+        return 0;
+    }
+    for(int i=basecnt;i>0;i--){
+        for(int j=0;j<i-1;j++){
+            if(!lkfcmp(lkf[j],lkf[j+1])){
+                base temp;
+                temp=lkf[j];
+                lkf[j]=lkf[j+1];
+                lkf[j+1]=temp;
+            }
+        }
+    }
+    for(int i=0;i<lkf[0].len;i++){
+        cout<<lkf[0].a[i]<<ans[i==lkf[0].len-1];
+    }
+    return 0;
+}
