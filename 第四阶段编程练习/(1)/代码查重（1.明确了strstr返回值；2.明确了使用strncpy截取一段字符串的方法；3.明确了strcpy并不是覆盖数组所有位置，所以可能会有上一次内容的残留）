@@ -1,0 +1,62 @@
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+#include<cmath>
+#include<cstring>
+using namespace std;
+#define MAX_N 1000
+char tem[MAX_N];
+int main()
+{
+    int a[2][2]={0};
+    for(int i=0;i<2;i++){
+        int nif=0,nfor=0;
+        int n1=0;
+        cin>>n1;
+        cin.get();
+        char aa[MAX_N];
+        for(int j=0;j<n1;j++){
+            cin.getline(aa,MAX_N);
+            for(int l=0;l<strlen(aa);l++){
+                if(*(aa+l)=='i'){
+                    strncpy(tem, aa+l, 3);
+                   // cout<<tem<<endl;
+                    if(strcmp(tem,"if ")==0||strcmp(tem,"if(")==0){
+                        //cout<<"是if"<<endl;
+                        nif++;
+                    }
+                }
+                if(*(aa+l)=='s'){
+                    strncpy(tem, aa+l, 7);
+                   // cout<<tem<<endl;
+                    if(strcmp(tem,"switch ")==0||strcmp(tem,"switch(")==0){
+                        //cout<<"是switch"<<endl;
+                        nif++;
+                    }
+                }
+                if(*(aa+l)=='w'){
+                    strncpy(tem, aa+l, 6);
+                    //cout<<tem<<endl;
+                    if(strcmp(tem,"while ")==0||strcmp(tem,"while(")==0){
+                       // cout<<"是while"<<endl;
+                        nfor++;
+                    }
+                }
+                if(*(aa+l)=='f'){
+                    strncpy(tem, aa+l, 4);
+                   // cout<<tem<<endl;
+                    if(strcmp(tem,"for ")==0||strcmp(tem,"for(")==0){
+                    //    cout<<"是for"<<endl;
+                        nfor++;
+                    }
+                }
+                memset(tem,0,sizeof(tem));
+            }
+        }
+        a[i][0]=nif;
+        a[i][1]=nfor;
+    }
+    cout<<((a[0][0]==a[1][0]&&a[0][1]==a[1][1])?"Yes":"No");
+    //cout<<a[0][0]<<" "<<a[1][0]<<" "<<a[0][1]<<" "<<a[1][1]<<endl;
+    return 0;
+}
