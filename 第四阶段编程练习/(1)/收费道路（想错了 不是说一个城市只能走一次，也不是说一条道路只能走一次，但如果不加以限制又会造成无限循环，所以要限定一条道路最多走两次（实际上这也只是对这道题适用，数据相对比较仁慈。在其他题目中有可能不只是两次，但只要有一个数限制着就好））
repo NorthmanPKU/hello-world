@@ -1,0 +1,84 @@
+#include<iostream>
+#include<iomanip>
+#include<algorithm>
+#include<cmath>
+#include<cstring>
+using namespace std;
+#define MAX_N 15
+struct road{
+    int begin;
+    int end;
+    int ci;
+    int p;
+    int r;
+};
+road inf[MAX_N];
+int rdst[MAX_N][MAX_N]={0};//用以储存从这个城市开始的所有道路的指标
+int sgn[MAX_N]={0};//用以指示有多少条路从这个城市开始
+int n=0,m=0;
+int vsgn[MAX_N*100]={0},vcity[MAX_N]={0},maxs=999999,fee[MAX_N]={0},feecnt=0;
+void func(int pos){
+    if(pos==n){
+        int sum=0;
+        for(int i=0;i<feecnt;i++){
+            sum+=fee[i];
+//            cout<<fee[i]<<" ";
+        }
+//        cout<<"sum="<<sum<<endl;
+        if(maxs>sum) maxs=sum;
+        
+        return;
+    }
+    
+    for(int i=0;i<sgn[pos];i++){
+        //cout<<250<<endl;
+        if(vsgn[rdst[pos][i]]>2) continue;
+        else{
+            if(vcity[inf[rdst[pos][i]].ci]>0) fee[feecnt++]=inf[rdst[pos][i]].p;
+            else fee[feecnt++]=inf[rdst[pos][i]].r;
+            vsgn[rdst[pos][i]]++;
+            vcity[inf[rdst[pos][i]].end]++;
+//            cout<<"现在我选择了道路"<<rdst[pos][i]<<" 从"<<inf[rdst[pos][i]].begin<<"始发，开往"<<inf[rdst[pos][i]].end<<"花费了"<<fee[feecnt-1]<<"元"<<endl;
+            func(inf[rdst[pos][i]].end);
+            vsgn[rdst[pos][i]]--;
+            vcity[inf[rdst[pos][i]].end]--;
+            feecnt--;
+        }
+    }
+    return;
+}
+int main()
+{
+    cin>>n>>m;
+    for(int i=1;i<=m;i++){
+        cin>>inf[i].begin>>inf[i].end>>inf[i].ci>>inf[i].p>>inf[i].r;
+        rdst[inf[i].begin][sgn[inf[i].begin]++]=i;
+    }
+//    for(int i=1;i<=m;i++){
+//        cout<<inf[i].begin<<" "<<inf[i].end<<" "<<inf[i].ci<<" "<<inf[i].p<<" "<<inf[i].r<<endl;;
+//    }
+//    for(int i=1;i<=n;i++){
+//        int j=0;
+//        cout<<i<<":";
+//        while(rdst[i][j++]!=0){
+//            cout<<rdst[i][j-1]<<" ";
+//        }
+//        cout<<sgn[i]<<endl;
+//    }
+    
+    func(1);
+    if(maxs==999999) cout<<"impossible";
+    else cout<<maxs;
+    return 0;
+}
+//4 5
+//
+//1 2 1 10 10
+//
+//2 3 1 30 50
+//
+//3 4 3 80 80
+//
+//2 1 2 10 10
+//
+//1 3 2 10 50
