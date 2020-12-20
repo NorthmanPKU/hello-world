@@ -1,0 +1,60 @@
+#include<iostream>
+#include<algorithm>
+#define MAX_N 3000
+#define MAX_n 50
+using namespace std;
+char num[120] = { '\0' };
+int numlist[120] = { 0 };
+bool dead[120] = { 0 };
+int len = 0;
+void func(int i,int remain) {
+	if (remain == 0) return;
+	//cout << 1;
+	int min = numlist[i], minloc = 0;
+	bool coup = 0;
+	for (int j = 1; j <= remain; j++) {
+		if (numlist[i + j] < min) {
+			min = numlist[i + j];
+			minloc = i + j;
+			coup = 1;
+		}
+	}
+		if (!coup) func(i + 1, remain);
+		else {
+			for (int j = i; j < minloc; j++) {
+				dead[j] = 1;
+			}
+			remain -= minloc-i;
+			func(minloc+1, remain);
+		}
+	
+	return;
+}
+
+int main()
+{
+	int n_del = 0;
+	cin.getline(num, 120,' ');
+	cin >> n_del;
+
+	int len = strlen(num);
+	for (int i = 0; i < len; i++) {
+		numlist[i] = num[i] - '0';
+	}
+	
+	func(0, n_del);
+
+	bool no_zero = 0;
+	for (int i = 0; i < len; i++) {
+		if (dead[i] || (numlist[i] == 0 && no_zero == 0)) continue;
+		no_zero = 1;
+		cout << numlist[i];
+	}
+	if (!no_zero) cout << 0;
+	/*for (int i = 0; i < len; i++) {
+		cout << dead[i];
+	*///}
+	//cout << endl << "n_del=" << n_del<<"len="<<len;
+
+	return 0;
+}
