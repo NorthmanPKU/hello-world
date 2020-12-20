@@ -1,0 +1,45 @@
+#include<iostream>
+#include<algorithm>
+#define MAX_N 3000
+#define MAX_n 50
+using namespace std;
+
+
+
+int main()
+{
+	int n = 0;
+	cin >> n;
+	cin.get();
+
+	while (n--) {
+		char a[MAX_N] = { '\0' }, b[MAX_N] = { '\0' };
+		cin.getline(a, MAX_N,' ');
+		cin.getline(b, MAX_N);
+		char *p,*plong;
+		if (strlen(a) < strlen(b)) {
+			p = a; plong = b;
+		}
+		else {
+			p = b; plong = a;
+		}
+		int minl = strlen(p);
+		int l = 1;
+		for (; l <= minl; l++) {
+			bool flag = 0;
+			for (int j = 0; j <= minl - l; j++) {
+				char tem[MAX_N] = { '\0' };
+				strncpy(tem, p + j, l);
+				if (strstr(plong, tem) != NULL) {
+					flag = 1;
+					break;
+				}
+			}
+			if (!flag) break;
+		}
+		cout << l-1  << endl;
+	}
+	
+
+	return 0;
+}
