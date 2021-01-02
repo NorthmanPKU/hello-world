@@ -1,0 +1,66 @@
+#include<iostream>
+
+using namespace std;
+
+struct node{
+    int num;
+    node *next;
+    node *last;
+};
+
+void output(bool first,node* a){
+    if(a==NULL){
+        cout<<endl;
+        return;
+    }
+    if(first){
+        cout<<a->num;
+    }
+    else{
+        cout<<" "<<a->num;
+    }
+    output(0,a->next);
+    return;
+}
+
+void del(node* a){
+    for(node* i=a;i;i=a){
+        a=i->next;
+        delete i;
+        i=a;
+    }
+}
+
+int main(){
+    int n=0;
+    cin>>n;
+    while(n--){
+        node* head=new node;
+        node* tem=head;
+        //tem->next=NULL;
+        while(cin>>tem->num){
+            if(cin.get()=='\n'){
+            
+                break;
+            }
+            tem->next=new node;//一会儿试试不弄会怎么样
+            tem->next->next=NULL;
+            tem=tem->next;
+        }
+      //  tem->next=NULL;
+        for(node* i=head;i;i=i->next){
+            for(node* j=i->next;j;j=j->next){
+                if(i->num>j->num){
+                    int hh=0;
+                    hh=j->num;
+                    j->num=i->num;
+                    i->num=hh;
+                }
+            }
+        }
+        output(1,head);
+        del(head);
+    }
+    return 0;
+}
+
