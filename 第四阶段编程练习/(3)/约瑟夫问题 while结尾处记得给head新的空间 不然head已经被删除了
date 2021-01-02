@@ -1,0 +1,88 @@
+#include<iostream>
+
+using namespace std;
+
+struct node{
+    int num;
+    node* next;
+    node* last;
+};
+
+node* head=new node;
+
+void output(bool first, node* a){
+    if(!a) return;
+    if(first){
+        cout<<a->num;
+    }
+    else cout<<" "<<a->num;
+    output(0,a->next);
+    return;
+}
+
+//void clear(node* a){
+//    for(node* i=a;i;i=i->next){
+//        a=i;
+//        delete i;
+//        i=a;
+//    }
+//}
+
+void del(node* a){
+    if(!a->last){
+        head=head->next;
+        head->last=NULL;
+    }
+    else if(!a->next){
+        a->last->next=NULL;
+    }
+    else{
+        a->last->next=a->next;
+        a->next->last=a->last;
+    }
+    delete a;
+    return;
+}
+
+int main(){
+    int n=0,m=0;
+    while(cin>>n>>m){
+        int temn=n;
+        if(n==0) break;
+        node* tem=head;
+        head->last=NULL;
+        int bh=1;
+        head->num=1;
+        tem->next=new node;
+        n--;
+        while(n--){
+            tem->next->last=tem;
+            tem=tem->next;
+            tem->num=++bh;
+            tem->next=new node;
+        }
+        tem->next=head;
+        head->last=tem;
+        int cnt=0;
+        int rem=temn;
+        node* i=head;
+        for(;i!=i->next;i=i->next){
+//            if(rem==1){
+//                cout<<i->num<<endl;
+//                break;
+//            }
+            cnt++;
+           // cout<<"剩余"<<rem<<"只猴子"<<" 现在是第"<<i->num<<"只猴子"<<" 现在数到"<<cnt<<endl;
+            if(cnt==m) {
+                del(i);
+                rem--;
+                cnt=0;
+            }
+        }
+        cout<<i->num<<endl;
+        //output(1, head);
+        delete i;
+        head=new node;
+    }
+    return 0;
+}
