@@ -1,0 +1,69 @@
+#include<iostream>
+
+using namespace std;
+
+struct node{
+    int num;
+    node* next;
+    node* last;
+};
+
+node* head=new node;
+
+void output(bool first, node* a){
+    if(!a) return;
+    if(first){
+        cout<<a->num;
+    }
+    else cout<<" "<<a->num;
+    output(0,a->next);
+    return;
+}
+
+void clear(node* a){
+    for(node* i=a;i;i=i->next){
+        a=i;
+        delete i;
+        i=a;
+    }
+}
+
+void del(node* a){
+    if(!a->last){
+        head=head->next;
+        head->last=NULL;
+    }
+    else if(!a->next){
+        a->last->next=NULL;
+    }
+    else{
+        a->last->next=a->next;
+        a->next->last=a->last;
+    }
+    return;
+}
+
+int main(){
+    int n=0;
+    cin>>n;
+    node* tem=head;
+    head->last=NULL;
+    cin>>head->num;
+    tem->next=new node;
+    n--;
+    while(n--){
+        tem->next->last=tem;
+        tem=tem->next;
+        cin>>tem->num;
+        tem->next=new node;
+    }
+    tem->next=NULL;
+    int p=0;
+    cin>>p;
+    for(node* i=head;i;i=i->next){
+        if(i->num==p) del(i);
+    }
+    output(1, head);
+    clear(head);
+    return 0;
+}
