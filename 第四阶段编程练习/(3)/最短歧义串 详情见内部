@@ -1,0 +1,74 @@
+#include<iostream>
+#include<iomanip>
+#include <cmath>
+#include <algorithm>
+#include <cstring>
+
+using namespace std;
+string input[120];
+bool visited[120]={0};
+string ans="-";
+int n=0;
+
+void func(string gstr,string curstr){
+    cout<<"开始func：已有"<<gstr<<"在找："<<curstr<<endl;
+    for(int i=0;i<n;i++){
+        //cout<<2;
+        if(!visited[i]){
+            if(input[i]==curstr){
+                if(gstr.length()+curstr.length()<ans.length()||ans=="-"){
+                    cout<<3;
+                    ans=gstr+curstr;
+                }
+                else return;
+            }
+            else if(input[i].length()>curstr.length()&&input[i].find(curstr,0)==0){
+                
+                
+                string tem_curstr=input[i].substr(curstr.length(),input[i].length()-curstr.length());
+                if(tem_curstr==curstr) continue;
+                visited[i]=1;
+                string tem_gstr=gstr+curstr;
+                cout<<"此时找到了"<<input[i]<<"已有的是"<<gstr<<"在寻觅的是"<<tem_curstr<<endl;
+                func(tem_gstr,tem_curstr);
+                visited[i]=0;
+            }
+            else if(input[i].length()<curstr.length()&&curstr.find(input[i],0)==0){
+                
+                
+                string tem_curstr=curstr.substr(input[i].length(),curstr.length()-input[i].length());
+                if(tem_curstr==curstr) continue;
+                visited[i]=1;
+                string tem_gstr=gstr+input[i];
+                cout<<"此时找到了"<<input[i]<<"已有的是"<<gstr<<"在寻觅的是"<<tem_curstr<<endl;
+                func(tem_gstr,tem_curstr);
+                visited[i]=0;
+            }
+        }
+    }
+    return;
+}
+
+int main(){
+    
+    cin>>n;
+    
+    for(int i=0;i<n;i++){
+        cin>>input[i];
+    }
+    sort(input,input+n);
+    for(int i=1;i<n;i++){
+        for(int j=0;j<i;j++){
+            if(input[i].find(input[j])==0&&input[i]!=input[j]){
+                visited[i]=1;visited[j]=1;
+                string rem=input[i].substr(input[j].length(),input[i].length()-input[j].length());
+                func(input[j],rem);
+                visited[i]=0;visited[j]=0;
+            }
+        }
+    }
+    //cout<<1;
+    for(int i=0;i<n;i++) cout<<input[i]<<endl;
+    cout<<ans;
+    return 0;
+}
