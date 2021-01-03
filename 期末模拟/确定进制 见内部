@@ -1,0 +1,54 @@
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+using namespace std;
+
+int jinzhi(int jz, int num) {
+	int ans = 0;
+	int cnt = 0;
+	while (num > 0) {
+		
+		ans += (num%10)*pow(jz, (double)cnt);
+		num /= 10;
+		cnt++;
+	}
+	return ans;
+}
+int maxwei(int n) {
+
+	int maxi = 0;
+	while (n > 0) {
+		if (n % 10 > maxi) maxi = n % 10;
+		n /= 10;
+	}
+	return maxi;
+}
+
+int main()
+{
+	int n = 0;
+	cin >> n;
+	while (n--) {
+		bool find = 0;
+		int p = 0, q = 0, r = 0;
+
+		cin >> p >> q >> r;
+
+		int maxinum = max(p, max(q, r));
+		int start = max((maxwei(p), maxwei(q)), maxwei(r));
+
+		for (int i = start+1; i <100; i++) {
+
+			if (jinzhi(i, p)*jinzhi(i, q) == jinzhi(i, r)) {
+				cout << i << endl;
+				find = 1;
+				break;
+			}
+		}
+		if (!find) cout << 0<<endl;
+	}
+
+
+
+    return 0;
+}
