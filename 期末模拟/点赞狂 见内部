@@ -1,0 +1,29 @@
+#include<iostream>
+
+using namespace std;
+
+int main()
+{
+	int n = 0;
+	cin >> n;
+	while (n--) {
+
+		int t = 0, r = 0;
+		cin >> r >> t;
+		int crazy = 0;
+		int tem = 0;
+		while (r--) {
+			int tiao = t;
+			int zancnt = 0;
+			while (tiao--) {
+				cin >> tem;
+				if (tem) zancnt++;
+			}
+			if (zancnt >= (t+1) / 2) crazy ++;
+		}
+		cout << crazy << endl;
+	}
+
+
+    return 0;
+}
