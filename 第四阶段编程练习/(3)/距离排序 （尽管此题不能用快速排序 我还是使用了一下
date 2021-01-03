@@ -1,0 +1,117 @@
+
+#include<iostream>
+#include<iomanip>
+#include <cmath>
+#include <algorithm>
+
+using namespace std;
+
+struct node{
+    int seq;
+    int a[4];
+    int b[4];
+    double dis;
+}ans[120];
+
+double dist(node t){
+    double sum=0;
+    for(int i=1;i<=3;i++){
+        sum+=(t.a[i]-t.b[i])*(t.a[i]-t.b[i]);
+    }
+    return sqrt(sum);
+}
+
+void output(node* t){
+    if(!t) return;
+    cout<<'('<<t->a[1]<<','<<t->a[2]<<','<<t->a[3]<<")-("<<t->b[1]<<','<<t->b[2]<<','<<t->b[3]<<")="<<fixed<<setprecision(2)<<t->dis<<endl;
+    return;
+}
+
+//void quick(node* b,node* s,node* e){
+//    if(s>=e) return;//yuanlaijiushizheli
+//    node* p=s;
+//    node* q=e;
+//    while(p!=q){
+//            while(p!=q&&q->dis<=b->dis){
+//                q--;
+//            }
+//            while(p!=q&&p->dis>=b->dis){
+//                p++;
+//            }
+//        node* tem=new node;
+//        *tem=*p;
+//        *p=*q;
+//        *q=*tem;
+//    }
+//    node tem;
+//    tem=*b;
+//    *b=*q;
+//    *q=tem;
+//    quick(b,s,p-1);
+//    quick(p+1,p+1,e);
+//}
+
+int input[120][5]={0};
+//void clear(node* a){
+//    for(node* i=a;i;i=i->next){
+//        a=i;
+//        delete i;
+//        i=a;
+//    }
+//}
+
+//void del(node* a){
+//    if(!a->last){
+//        head=head->next;
+//        head->last=NULL;
+//    }
+//    else if(!a->next){
+//        a->last->next=NULL;
+//    }
+//    else{
+//        a->last->next=a->next;
+//        a->next->last=a->last;
+//    }
+//    delete a;
+//    return;
+//}
+
+int main(){
+    int n=0;
+    cin>>n;
+    for(int i=1;i<=n;i++){
+        for(int j=1;j<=3;j++)
+            cin>>input[i][j];
+    }
+    //
+    int cnt=0;
+    for(int i=1;i<=n;i++){
+        for(int j=i+1;j<=n;j++){
+            ++cnt;
+            //cout<<"现在开始计算第"<<cnt<<"个距离信息，是点"<<i<<"和点"<<j<<"的 ";
+            memset(ans[cnt].a, 0, sizeof(ans[cnt]));
+            memset(ans[cnt].b, 0, sizeof(ans[cnt]));
+            for(int k=1;k<=3;k++){
+                ans[cnt].a[k]=input[i][k];
+                ans[cnt].b[k]=input[j][k];
+            }
+            ans[cnt].dis=dist(ans[cnt]);
+           // cout<<"其值为"<<ans[cnt].dis<<endl;
+        }
+    }
+    //quick(ans+1,ans+1,ans+cnt);
+    for(int i=cnt;i>1;i--){
+        for(int j=1;j<=i-1;j++){
+            if(ans[j].dis<ans[j+1].dis){
+                node t;
+                t=ans[j+1];
+                ans[j+1]=ans[j];
+                ans[j]=t;
+            }
+        }
+    }
+    for(int i=1;i<=cnt;i++){
+        output(ans+i);
+    }
+    return 0;
+}
