@@ -1,0 +1,139 @@
+#include<iostream>
+#include<algorithm>
+#include<cmath>
+#include<iomanip>
+#include<cstring>
+typedef long long ll;
+using namespace std;
+ll x[10010]={0},y[10010]={0},all[20020]={0},all_cnt=1,lsh[10000000]={0},lsh_cnt=1;
+ll ans=0;
+
+struct node{
+    ll lazy,l,r,color;
+}n[8000000];
+
+void update(ll k){
+    if(n[k<<1].color==n[k<<1|1].color){
+        n[k].color=n[k<<1].color;
+    }
+    else n[k].color=-1;
+    return;
+}
+
+void build(ll k,ll l,ll r){
+    n[k].l=l;
+    n[k].r=r;
+    n[k].lazy=0;
+    n[k].color=0;
+    if(l==r) return;
+    else{
+        ll mid=(l+r)/2;
+        build(k<<1,l,mid);
+        build(k<<1|1,mid+1,r);
+    }
+    update(k);
+    return;
+}
+
+void pushdown(ll k){
+    if(n[k].lazy==0) return;
+    if(n[k].l==n[k].r) return;
+    n[k*2].lazy=n[k*2+1].lazy=n[k].lazy;
+    n[k*2].color=n[k*2+1].color=n[k].lazy;
+    n[k].lazy=0;
+    return;
+}
+
+void paint(ll k,ll l,ll r,ll p){
+    if(n[k].l>=l&&n[k].r<=r){
+        n[k].lazy=p;
+        n[k].color=p;
+        return;
+    }
+    if(n[k].l==n[k].r) return;
+    pushdown(k);
+    ll mid=(n[k].l+n[k].r)/2;
+    if(mid>=l) paint(k<<1,l,r,p);
+    if(mid<r) paint(k<<1|1,l,r,p);
+    update(k);
+    return;
+}
+
+ll dot(ll k,ll aim){
+    if(n[k].l==n[k].r) return n[k].color;
+    ll mid=(n[k].l+n[k].r)/2;
+    if(aim<mid) return dot(k<<1,aim);
+    else return dot(k<<1|1,aim);
+}
+
+bool occupied[20020]={0};
+
+void search(ll k){
+    if(n[k].color>0&&!occupied[n[k].color]){
+        occupied[n[k].color]=1;
+        ans++;
+    }
+    else if(n[k].color==0) return;
+    else if(n[k].color==-1){
+        pushdown(k);
+        search(k<<1);
+        search(k<<1|1);
+    }
+    return;
+}
+
+int main(){
+    int c=0;
+    //cin>>c;
+    c=1;
+    while(c--){
+        ans=0;
+        all_cnt=1;
+        lsh_cnt=1;
+        memset(x,0,sizeof(x));
+        memset(y,0,sizeof(y));
+        memset(all,0,sizeof(all));
+        memset(lsh,0,sizeof(lsh));
+        memset(occupied,0,sizeof(occupied));
+        memset(n,0,sizeof(n));
+        int n=0;
+        cin>>n;
+        cin>>n;
+        for(int i=1;i<=n;i++){
+            cin>>x[i]>>y[i];
+            all[all_cnt++]=x[i];
+            all[all_cnt++]=y[i];
+        }
+//        if(c==3){
+//        cout<<n<<endl;
+//        for(int i=1;i<=n;i++){
+//        cout<<x[i]<<" "<<y[i]<<"\\n";
+//        }
+//        }
+        sort(all+1,all+all_cnt);
+        //离散化
+        for(int i=1;i<=all_cnt;i++){
+            if(lsh[all[i]]) continue;
+            if(i>1&&all[i]-all[i-1]>1) lsh_cnt++;
+            lsh[all[i]]=lsh_cnt++;
+        }
+        //建墙
+        build(1,1,lsh_cnt-1);
+        //开始盖
+        for(int i=1;i<=n;i++){
+            paint(1,lsh[x[i]],lsh[y[i]],i);
+        }
+        search(1);
+        cout<<ans<<endl;
+//        for(int i=1;i<all_cnt;i++){
+//            cout<<all[i]<<" "<<lsh[all[i]]<<endl;
+//        }
+//        cout<<"lsh_cnt="<<lsh_cnt<<endl;
+//        for(int i=1;i<lsh_cnt;i++){
+//            cout<<dot(1,i)<<" ";
+//        }
+
+    }
+    return 0;
+}
+//8:30
