@@ -1,0 +1,45 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+#define MAX_N 15
+
+int cost[MAX_N][MAX_N] = {0};
+int mem[1 << MAX_N][MAX_N] = {0};
+bool visit[MAX_N] = {false};
+int n = 0;
+
+void dfs(int pos, int exp, int status, int n_visit)
+{
+    if (n_visit >= n)   // 走完所有城市，终止
+    {
+        exp += cost[pos][0];
+        if (mem[(1 << n) - 1][0] > exp || mem[(1 << n) - 1][0] < 0)
+            mem[(1 << n) - 1][0] = exp;
+        return;
+    }
+    if (mem[status | (1 << pos)][pos] > 0 && mem[status | (1 << pos)][pos] <= exp)  // 当前子情况不是最优的，直接剪枝，终止
+        return;
+    else
+        mem[status | (1 << pos)][pos] = exp;
+    for (int i = 0; i < n; i++)
+    {
+        if (visit[i])
+            continue;
+        visit[i] = true;
+        dfs(i, exp + cost[pos][i], status | (1 << i), n_visit + 1);
+        visit[i] = false;
+    }
+}
+
+int main()
+{
+	cin >> n;
+	for (int i = 0; i < n; ++i)
+		for (int j = 0; j < n; ++j)
+			cin >> cost[i][j];
+    memset(mem, 0xff, sizeof(mem));
+	dfs(0, 0, 0, 0);
+	cout << mem[(1 << n) - 1][0] << endl;
+	return 0;
+}
