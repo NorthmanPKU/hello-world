@@ -1,0 +1,41 @@
+#include<iomanip>
+#include<iostream>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+int a[100105]={0};
+int n=0,c=0,ans=0;
+
+bool avail(int d,int pos,int rem){
+    if(pos>=n) return 0;
+    if(rem==0) return 1;
+    int next=pos+1;
+    while(a[next]-a[pos]<d&&next<n) next++;
+    return avail(d,next,rem-1);
+}
+
+void bs(int l,int r){
+    if(l>r) return;
+    int mid=l+(r-l)/2;
+    //int d=r-l;
+    if(avail(mid,0,c-1)){
+        ans=max(mid,ans);
+        bs(mid+1,r);
+    }
+    else{
+        bs(l,mid-1);
+    }
+    
+}
+
+int main(){
+    
+    cin>>n>>c;
+    
+    for(int i=0;i<n;i++) cin>>a[i];
+    sort(a,a+n);
+    bs(1,a[n-1]-a[0]);
+    cout<<ans;
+    return 0;
+}
