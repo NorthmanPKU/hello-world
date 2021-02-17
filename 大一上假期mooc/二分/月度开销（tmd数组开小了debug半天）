@@ -1,0 +1,40 @@
+#include<iomanip>
+#include<iostream>
+#include <algorithm>
+#include <cmath>
+
+int n=0,m=0,md=0,sum=0;
+int ans=10000000;
+int d[101000]={0};
+using namespace std;
+void bs(int l,int r);
+bool avail(int x,int pos,int rem);
+int main(){
+    cin>>n>>m;
+    for(int i=0;i<n;i++){
+        cin>>d[i];
+        md=max(md,d[i]);
+        sum+=d[i];
+    }
+    bs(md,sum);
+    cout<<ans;
+}
+void bs(int l,int r){
+    if(l>r) return;
+    int mid=l+(r-l)/2;
+    if(avail(mid,0,m)){
+        ans=mid;
+        bs(l,mid-1);
+    }
+    else bs(mid+1,r);
+}
+bool avail(int x,int pos,int rem){
+    if(rem>=n-pos) return 1;
+    if(rem<=0) return 0;
+    int sim=0,loc=pos;
+    while(sim<=x&&loc<=n){
+        sim+=d[loc++];
+    }
+    loc--;
+    return avail(x,loc,rem-1);
+}
