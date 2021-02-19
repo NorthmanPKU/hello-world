@@ -1,0 +1,26 @@
+#include<iomanip>
+#include<iostream>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+int main(){
+    int k=0;
+    cin>>k;
+    int a[1000000]={0},m[1000000]={0};
+    for(int i=0;i<k;i++) cin>>a[i];
+    m[0]=1;
+    int ans=0;
+    for(int i=1;i<k;i++){
+        int tem=1;
+        for(int j=0;j<i;j++){
+            if(a[j]>=a[i]) tem=max(tem,m[j]+1);
+        }
+        m[i]=tem;
+        ans=max(ans,tem);
+    }
+    cout<<ans;
+    
+    return 0;
+}
