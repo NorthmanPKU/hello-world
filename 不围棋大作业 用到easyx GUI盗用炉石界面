@@ -1,0 +1,1089 @@
+//第一座高峰：visited清空语句放置位置导致的bug
+//第二个 二维指针没有从0开始 导致aircalc出现“使用了未定义指针”的错误
+//第三个 随机落子时没有带入随机生成数，而是继续用xy
+#include <conio.h> 
+#include <stdio.h> 
+#include <windows.h> 
+#include <iostream>
+#include<cstring>
+#include<memory>
+#include<stdlib.h>
+#include<graphics.h>
+#include<fstream>
+//#include<winmm.lib>
+#include<mmsystem.h>//
+#pragma comment(lib,"Winmm.lib")
+
+using namespace std;
+
+int lines = 30;
+#define MAX_N 10
+#define player1 1
+constexpr auto player2 = 2;
+#define AI 0//2
+#define Human 1
+#define Empty 2//0
+#define Time_Max 1000
+#define Human_Win_Profit -1
+#define AI_Win_Profit 1
+#define Not_Over_Yet 2
+#define The_Constant 0.8
+#define Black 1;
+#define White 0;
+int debugger = 0;
+
+int flag = 1;
+int chess_num = 0;//落子数
+int dl[4] = { -1,0,1,0 }, dh[4] = { 0,-1,0,1 };
+int father[MAX_N * MAX_N] = { 0 }, air[MAX_N * MAX_N] = { 0 };
+//int map[MAX_N][MAX_N] = { 0 };//记录纯棋子 黑0白1棋盘2
+//int** map = new int* [MAX_N*MAX_N+1];
+
+int** map = (int**)malloc((MAX_N + 1) * sizeof(int*));
+string name[2] = { "白", "黑" };
+//char board_pic[15][50]{ " 1 2 3 4 5 6 7 8 9","1┌─┬─┬─┬─┬─┬─┬─┬─┐","2├─┼─┼─┼─┼─┼─┼─┼─┤","3├─┼─┼─┼─┼─┼─┼─┼─┤" ,"4├─┼─┼─┼─┼─┼─┼─┼─┤" ,"5├─┼─┼─┼─┼─┼─┼─┼─┤" ,"6├─┼─┼─┼─┼─┼─┼─┼─┤" ,"7├─┼─┼─┼─┼─┼─┼─┼─┤" ,"8├─┼─┼─┼─┼─┼─┼─┼─┤" ,"9└─┴─┴─┴─┴─┴─┴─┴─┘" };
+
+int seq(int h, int l) {//坐标与其编号转化
+	return (h - 1) * 9 + l;
+}
+int seq_to_h(int seq) {
+	return seq / 9;
+}
+int seq_to_l(int seq) {
+	return seq % 9;
+}
+bool inboard(int h, int l) {//是否在棋盘内部
+	return h >= 1 && h <= 9 && l >= 1 && l <= 9;
+}
+
+int visited[MAX_N * MAX_N + 1] = { 0 };
+int air_calc(int h, int l, int p, int** map) {
+	//visited[seq(h, l)] = 1;
+
+	//if(debugger) cout << "一步一步找到线索";
+
+	if (visited[seq(h, l)] == 1 || !inboard(h, l) || map[h][l] == !p) return 0;
+	//|| map[h][l] == !p////////////////visited[seq(h, l)] == 1 ||///////////////|| !inboard(h, l)//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	if (map[h][l] == 2) { visited[seq(h, l)] = 1; return 1; }
+	if (visited[seq(h, l)] == 0 && map[h][l] == p) {
+		visited[seq(h, l)] = 1;
+		//int cnt = 0;
+		//for (int i = 0; i < 4; i++) {
+			//if (map[h + dh[i]][l + dl[i]] == 2 && !visited[seq(h + dh[i], l + dl[i])]&&inboard(h + dh[i], l + dl[i])) {
+				//visited[seq(h + dh[i], l + dl[i])] = 1;
+				//cnt++;
+			//}
+			//if (map[h + dh[i]][l + dl[i]] != !p && !visited[seq(h + dh[i], l + dl[i])] && inboard(h + dh[i], l + dl[i])) {
+				//visited[seq(h + dh[i], l + dl[i])] = 1;
+				//cnt += air_calc(h + dh[i], l + dl[i], p);
+				//return 
+			//}
+		//}
+
+		//return cnt;//记得visited数组清零
+		//if(debugger) cout << "再看看";
+		return air_calc(h + 1, l, p, map) + air_calc(h, l + 1, p, map) + air_calc(h - 1, l, p, map) + air_calc(h, l - 1, p, map);
+	}
+}
+
+void gotoxy(int x, int y) {//光标移动
+	COORD coord = { x - 1, y - 1 };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+}
+
+bool avail(int h, int l, int p, int** map) {//判断是否可以落子
+	//if (debugger) cout << "其实错误在这里";
+	if (map[h][l] != 2) {
+		gotoxy(1, 11);
+		cout << "The place has been occupied, please choose another place." << endl;
+		return 0;
+	}
+	//if (debugger) cout << "其实还得往下一点";
+	int cnta = 0, cntp = 0;
+	map[h][l] = p;
+	//if (debugger) cout << "卧槽这里也不是";
+	for (int i = 0; i < 4; i++) {
+		if ((inboard(h + dh[i], l + dl[i])) && (map[h + dh[i]][l + dl[i]] == (p + 1) % 2) && (air_calc(h + dh[i], l + dl[i], (p + 1) % 2, map) == 0)) {
+
+			gotoxy(1, 11);
+			cout << "You can't put here!                                          " << endl;
+			//cout << i << "位置的气为" << air_calc(h + dh[i], l + dl[i], (p + 1) % 2);
+			//for (int i = 0; i < MAX_N; i++) visited[i] = 0;
+			memset(visited, 0, sizeof(visited));
+			map[h][l] = 2;
+			return 0;
+		}
+		memset(visited, 0, sizeof(visited));
+	}
+	//if(debugger) cout << "我他妈的 那这里呢？";
+	if (!air_calc(h, l, p, map)) {
+		//cout << "胜利在望！";
+		map[h][l] = 2;
+		gotoxy(1, 11);
+		cout << "You can't out here!" << endl;
+		//for (int i = 0; i < MAX_N; i++) visited[i] = 0;
+		memset(visited, 0, sizeof(visited));
+		return 0;
+
+	}
+	//if (debugger) cout << "不会吧不会吧 函数都要无了";
+	map[h][l] = 2;
+
+
+	return 1;
+}
+
+bool judge_gg(int** map, int player = flag) {
+	//cout << "别懿姝";
+	for (int i = 1; i < 10; i++)
+		for (int j = 1; j < 10; j++) {
+			//cout << "这里有错误";
+			debugger = 1;
+			if (map[i][j] == 2 && avail(i, j, player, map)) {
+				//cout << "那这里那？";
+				return 0;
+			}
+		}
+	if (!chess_num) return 0;
+	return 1;
+}//判断游戏是否结束
+class UCT;
+
+class Node {
+private:
+
+	int** board_state;
+	int chess_player;
+	//int pre_x, pre_y;
+	int n_visited;
+	double profit;
+	int Depth;
+	Node* Father;
+	Node** children;
+	int n_children;
+	int n_expandable;
+	int* Node_expandable;
+	friend class UCT;
+
+	int** board_cpy() const {//用于拷贝一份状态数组board_state
+		//int** present_board_state = new int* [MAX_N+1];
+		int** present_board_state = (int**)malloc((MAX_N + 2) * sizeof(int*));
+		for (int i = 0; i <= MAX_N; i++) {
+			present_board_state[i] = new int[MAX_N + 2];
+			for (int j = 0; j <= MAX_N; j++)
+				present_board_state[i][j] = this->board_state[i][j];
+		}
+		return present_board_state;
+	}
+
+	void clear() {
+		for (int i = 1; i < MAX_N; i++)
+			delete[] board_state[i];
+		delete[] board_state;
+		delete[] Node_expandable;
+		//for (int i = 1; i < MAX_N; i++) {
+			//for (int j = 1; j < MAX_N; j++) 
+		for (int i = 0; i < n_children; i++) {
+			if (children[i]) {
+				children[i]->clear();
+				delete children[i];
+				//}
+				delete[] children;
+			}
+			//}
+		}
+	}
+
+public:
+	int loc_inf;
+	int pre_x, pre_y;
+	//构造函数
+	Node(int** board, int depth = 0, int x = -1, int y = -1, int playing_right = AI, Node* father = NULL) :
+		board_state(board), Depth(depth), pre_x(x), pre_y(y), chess_player(playing_right), n_visited(0), profit(0), Father(father) {
+		loc_inf = seq(pre_x, pre_y);
+		n_expandable = 0;
+		n_children = 0;
+		children = new Node * [MAX_N * MAX_N + 1];
+		Node_expandable = new int[MAX_N * MAX_N + 1];
+		for (int i = 1; i < MAX_N; i++) {
+			for (int j = 1; j < MAX_N; j++) {
+				if (avail(i, j, chess_player, board))
+					Node_expandable[n_expandable++] = seq(i, j);
+				children[seq(i, j)] = NULL;//此为第一类差异点
+			}
+		}
+		if (n_expandable <= 3) loc_inf = -1;
+	}
+	int x() const { return pre_x; }//问题点
+	int y() const { return pre_y; }//
+	int Who_is_playing() const { return chess_player; }
+	bool is_Expandable() const { return n_expandable > 0; }
+
+	bool is_Terminal() {//判断是否为终止节点//这个地方一会要改一改，将judge__gg函数设计为传入一个二维数组的
+		if (pre_x == -1 && pre_y == -1) return 0;//若为根节点，直接返回0
+		if (judge_gg(board_state)) return 1;
+		return 0;//必要否
+	}
+
+	Node* expand(int playing_right) {
+		int rand_index = rand() % n_expandable;//随即确定一个值，用以随机选择儿子
+		int** new_Board_State = new int* [MAX_N * MAX_N + 1];
+		new_Board_State = board_cpy();//复制棋盘状态数组
+		//不同预警
+		int new_y = Node_expandable[rand_index] - ((Node_expandable[rand_index] - 1) / 9) * 9;
+		int new_x = (Node_expandable[rand_index] - 1) / 9 + 1;//确定落子坐标
+		new_Board_State[new_x][new_y] = Who_is_playing();//落子
+		//为当前节点创建扩展子节点
+		children[n_children++] = new Node(new_Board_State, Depth + 1, new_x, new_y, playing_right, this);//原seq
+		swap(Node_expandable[rand_index], Node_expandable[--n_expandable]);//将选中的节点放在末尾并且使得可扩展结点个数减一
+		return children[n_children - 1];//yuan seq
+	}
+	//最优子节点的选择
+	Node* Best_Child() {
+		Node useless(map);
+		Node* optimum = &useless;
+		double max_Profit_Chance = -RAND_MAX;
+		//for (int i = 1; i < MAX_N; i++) {
+			//for (int j = 1; j < MAX_N; j++) {
+		for (int i = 0; i < n_children; i++) {
+			//if (children[n_children] == NULL) continue;//yuan seq
+			double modified_Profit = (chess_player == Human ? -1 : 1) * children[i]->profit;//修正收益值、//yuan seq
+			int child_Visited_Num = children[i]->n_visited;//yuan seq
+			double tem_Profit_Chance = modified_Profit / child_Visited_Num + sqrt(2 * logl(n_visited) / child_Visited_Num) * The_Constant;//经典公式
+			if (tem_Profit_Chance > max_Profit_Chance || (tem_Profit_Chance == max_Profit_Chance && rand() % 2 == 0)) {//有点意思
+				max_Profit_Chance = tem_Profit_Chance;
+				optimum = children[i];//yuan seq
+			}
+			//}
+		//}
+		}
+		return optimum;
+	}
+	//backpropagation
+	void backpropagation(double delta_Profit) {
+		Node* tem = this;
+		while (tem) {
+			tem->n_visited++;
+			tem->profit += delta_Profit;
+			tem = tem->Father;
+		}
+	}
+};
+
+class UCT {
+private:
+	Node* Root;
+	int time_Begin;
+
+	//得到当前状态收益
+	int Profit(int** board, int chess_player, int x, int y) const {
+		//gotoxy(30, 30);
+		//cout << "棋权：哈哈哈哈哈哈哈哈哈哈" << chess_player << endl;
+		if (chess_player == Human && judge_gg(board, chess_player)) return AI_Win_Profit;
+		if (chess_player == AI && judge_gg(board, chess_player)) return Human_Win_Profit;
+		return Not_Over_Yet;
+	}
+	//随机落子的实现
+	void second_Way_to_Randomplay(int** board, int chess_player) {
+		int a[MAX_N * MAX_N + 5] = { 0 };
+		int cnt = 0;
+		for (int i = 1; i < 10; i++) {
+			for (int j = 1; j < 10; j++) {
+				if (avail(i, j, chess_player, board))
+					a[cnt++] = seq(i, j);
+			}
+		}
+		//gotoxy(1, lines++);
+		//cout << "此时有" << cnt << "个可下位置,找完后用时" << clock() - time_Begin << "毫秒";
+		if (cnt == 0) return;
+		//srand(clock());
+		while (1) {
+			int randnum = rand() % (cnt);
+			int chosen = a[randnum];
+			if (board[(chosen - 1) / 9 + 1][chosen - ((chosen - 1) / 9) * 9] == !chess_player) {
+				continue;
+			}
+			//if (!avail((chosen - 1) / 9 + 1, chosen - ((chosen - 1) / 9) * 9, chess_player, board)) {
+				//swap(a[randnum], a[--cnt]);
+				//continue;
+			//}
+			//swap(a[randnum], a[--cnt]);
+			//gotoxy(25, 25); cout << clock();
+			board[(chosen - 1) / 9 + 1][chosen - ((chosen - 1) / 9) * 9] = chess_player;
+			//	gotoxy(18, 18);
+
+			break;
+		}
+		return;
+	}
+	void random_Play(int** board, int chess_player, int& x, int& y) {
+
+		srand(clock());
+		while (1) {
+			int randx = rand() % 9 + 1;
+			int randy = rand() % 9 + 1;
+			//	gotoxy(19, 19);
+			//	cout << "randx=" << randx << " randy=" << randy;
+			//	if (!avail(randx, randy, chess_player, board)) {
+			//		gotoxy(25, 25); cout << clock();
+			//		gotoxy(20, 20);
+			//		for (int i = 1; i < MAX_N; i++) {
+			//			for (int j = 1; j < MAX_N; j++) {
+			//				cout << board[i][j];
+			//			}
+			//			cout << endl;
+			//		}
+			//		continue;
+			//	}
+				//int randnum = rand() % 81 + 1;
+				//swap(all_avail[randnum], all_avail[--cnt_avail]);
+			board[randx][randy] = chess_player;
+			//board[randnum / 9][randnum % 9] = chess_player;
+
+			return;
+		}
+	}
+	//棋权变更
+	int Coup(int chess_player) const {
+		if (chess_player == AI) return Human;
+		else if (chess_player == Human) return AI;
+		else return -1;//未知有用与否
+	}
+
+	//扩展结点
+	Node* expand(Node* current_Node) {
+		return current_Node->expand(Coup(current_Node->chess_player));
+	}
+
+	//最优子策略
+	Node* best_Child(Node* father) { return father->Best_Child(); }
+
+	//搜索树策略
+	Node* TreePolicy(Node* current_Node) {
+		//gotoxy(1, lines++);
+	//	cout << endl << "开始进行搜索树策略(返回完全扩展节点的最佳子节点/扩展新节点)";
+		while (!current_Node->is_Terminal()) {
+			if (current_Node->is_Expandable()) {
+				//		gotoxy(1, lines++);
+				//		cout << endl << "扩展新节点";
+				return expand(current_Node);
+			}
+			else {
+				//		gotoxy(1, lines++);
+				//		cout << endl << "返回最佳子节点";
+				current_Node = best_Child(current_Node);;
+			}
+		}
+		return current_Node;
+	}
+
+	//模拟策略
+	double default_Policy(Node* selected_Node) {
+		//int**  = selected_Node->board_state;//这里不一样
+		//建立一个棋盘的拷贝
+		int** board_State = new int* [MAX_N + 2];//这里不一样
+		for (int i = 0; i <= MAX_N; i++) {
+			board_State[i] = new int[MAX_N + 2];
+			for (int j = 0; j <= MAX_N; j++)
+				board_State[i][j] = selected_Node->board_state[i][j];
+		}
+		int chess_player = selected_Node->Who_is_playing(), depth = selected_Node->Depth;
+		int x = selected_Node->x(), y = selected_Node->y();
+		int profit = Profit(board_State, Coup(chess_player), x, y);
+		int n = 0;
+
+		//int a[MAX_N * MAX_N + 5] = { 0 };//随机落子的第三种实现
+		//int cnt = 0;
+		//for (int i = 1; i < 10; i++) {
+		//	for (int j = 1; j < 10; j++) {
+		//		if (avail(i, j, chess_player, board_State))
+		//			a[cnt++] = seq(i, j);
+		//	}
+		//}
+
+		while (profit == Not_Over_Yet && depth >= 80) {//未终止
+
+		//	gotoxy(29, 29);
+		//	cout << endl << "这是我落下的第" << ++n << "颗棋子,现在棋权为" << chess_player << ",深度为" << depth + 1<<" profit:"<<profit;
+		//	gotoxy(18, 18);
+
+			depth++;
+			//random_Play(board_State, chess_player, x, y);
+			//second_Way_to_Randomplay(board_State, chess_player, a, cnt);//第三种
+			second_Way_to_Randomplay(board_State, chess_player);
+			profit = Profit(board_State, chess_player, x, y);
+			chess_player = Coup(chess_player);
+		}
+		//	gotoxy(1, lines++);
+		//	cout << endl << "此局模拟结束";
+		for (int i = 0; i <= MAX_N; i++)
+			delete[] board_State[i];
+		delete[] board_State;
+		return double(profit);///logl(depth+1);非线性加速
+	}
+	//回溯更新收益
+	void Backpropagation(Node* selected_Node, double delta_Profit) {
+		selected_Node->backpropagation(delta_Profit);
+	}
+public:
+	//构造函数
+	Node* UCT_Search(int** board_State) {
+		//	gotoxy(1, lines++);
+		//	cout << "准备开始UCT" << endl;
+		time_Begin = clock();
+		int** boardcpy = new int* [MAX_N + 1];
+		for (int i = 0; i <= MAX_N; i++) {
+			boardcpy[i] = new int[MAX_N + 1];
+			for (int j = 0; j <= MAX_N; j++)
+				boardcpy[i][j] = board_State[i][j];
+		}
+		//gotoxy(1, lines++);
+	//	cout << "即将开始创建根节点" << endl;
+		Root = new Node(boardcpy);//以当前状态创建根节点
+		if (Root->n_expandable <= 3) return Root;
+		//Node *Root(board_State);
+		//gotoxy(1, lines++);
+	//	cout << "根节点创建完毕" << endl;
+		int cnt = 0;
+		while (clock() - time_Begin <= Time_Max) {//尚未耗尽计算时长
+		//	gotoxy(1, lines++);
+		//	cout << endl << "这是第" << ++cnt << "次搜索的开始，已用时" << clock() - time_Begin << "毫秒" << endl;
+			Node* selected_Node = TreePolicy(Root);//运用搜索树策略节点
+		//	gotoxy(1, lines++);
+		//	cout << endl << "搜索树策略完毕并返回，找到了接下来要操作的节点,现在开始对它随机模拟,time:" << clock() - time_Begin << "毫秒";
+			double delta_Profit = default_Policy(selected_Node);
+			//	gotoxy(1, lines++);
+			//	cout << endl << "随机模拟完了一局游戏，现在开始backpropagation,用时" << clock() - time_Begin << "毫秒";
+			Backpropagation(selected_Node, delta_Profit);
+			//	gotoxy(1, lines++);
+			//	cout << endl << "backpropagation完毕，准备开始下一次,用时" << clock() - time_Begin << "毫秒";
+		}
+		return best_Child(Root);
+	}
+	//析构函数
+	~UCT() {
+		//gotoxy(1, lines++);
+		//cout << endl << "准备开始清场";
+		//Root->clear();
+		delete Root;
+	}
+};
+
+
+
+void func_after_put(int h, int l, int p, int** map) {//落子后的操作
+	map[h][l] = p;
+	/*
+	int cnta = 0, cntp = 0, cne = 0;
+	for (int i = 0; i < 4; i++) {
+		if (inboard(h + dh[i], l + dl[i]) && map[h + dh[i]][l + dl[i]] == 2) cnta++;
+		if (inboard(h + dh[i], l + dl[i]) && map[h + dh[i]][l + dl[i]] == p) cntp++;
+		else cne++;
+	}
+	//“打扫干净屋子再请客——先处理自己棋子的问题”
+	if (cntp == 0) {
+		father[seq(h, l)] = seq(h, l);
+		air[seq(h, l)] = cnta;
+	}
+	else if (cntp == 1) {
+		for (int i = 0; i < 4; i++) {
+			if (inboard(h + dh[i], l + dl[i]) && map[h + dh[i]][l + dl[i]] == p) {
+				father[seq(h, l)] = father[seq(h + dh[i], l + dl[i])];
+				air[father[seq(h, l)]] += cnta - 1;
+				break;
+			}
+		}
+	}
+	else {
+		father[seq(h, l)] = seq(h, l);
+		for (int i = 0; i < 4; i++) {
+			if (inboard(h + dh[i], l + dl[i]) && map[h + dh[i]][l + dl[i]] == p) {
+				if (lkf(seq(h + dh[i], l + dl[i])) == seq(h, l));
+				else {
+					air[seq(h, l)] += air[father[seq(h + dh[i], l + dl[i])]] - 1;
+					father[lkf(seq(h + dh[i], l + dl[i]))] = seq(h, l);
+				}
+			}
+		}
+		air[seq(h, l)] += cnta;
+	}
+	//“请客”——处理对方棋子
+	if (cne == 1) {
+	for (int i = 0; i < 4; i++)
+		if (map[h + dh[i]][l + dl[i]] == !p) {
+			air[lkf(seq(h + dh[i], l + dl[i]))]--; break;
+		}
+	}
+	else if (cne != 0) {
+		int tem[4] = { 0 },cnt=0;
+		bool temf = 0;
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < cnt; j++) {
+				if (tem[lkf(seq(h + dh[i], l + dl[i]))] == tem[j]) {
+					temf = 1;
+					break;
+				}
+			}
+			if (!temf) {
+				tem[cnt++] = lkf(seq(h + dh[i], l + dl[i]));
+				air[lkf(seq(h + dh[i], l + dl[i]))]--;
+			}
+		}
+	}*/
+}
+
+int lkf(int x) {//寻找父对象
+	return x == father[x] ? x : x = lkf(father[x]);
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+IMAGE warn;
+IMAGE menu;
+IMAGE gamename;
+IMAGE baoxue;
+
+void print_board() {//打印棋盘
+	//for (int i = 0; i < 8; i++) {
+	//	cout << board_pic[i];
+	//	cout << endl;
+	//	//cout << endl;
+	//}
+	////char board_pic[15][50]{ " 1 2 3 4 5 6 7 8 9","1┌─┬─┬─┬─┬─┬─┬─┬─┐","2├─┼─┼─┼─┼─┼─┼─┼─┤","3├─┼─┼─┼─┼─┼─┼─┼─┤" ,"4├─┼─┼─┼─┼─┼─┼─┼─┤" ,"5├─┼─┼─┼─┼─┼─┼─┼─┤" ,"6├─┼─┼─┼─┼─┼─┼─┼─┤" ,"7├─┼─┼─┼─┼─┼─┼─┼─┤" ,"8├─┼─┼─┼─┼─┼─┼─┼─┤" ,"9└─┴─┴─┴─┴─┴─┴─┴─┘" };
+	cout << " 1 2 3 4 5 6 7 8 9" << endl;
+	cout << "1┌─┬─┬─┬─┬─┬─┬─┬─┐" << endl;
+	cout << "2├─┼─┼─┼─┼─┼─┼─┼─┤" << endl;
+	cout << "3├─┼─┼─┼─┼─┼─┼─┼─┤" << endl;
+	cout << "4├─┼─┼─┼─┼─┼─┼─┼─┤" << endl << "5├─┼─┼─┼─┼─┼─┼─┼─┤" << endl << "6├─┼─┼─┼─┼─┼─┼─┼─┤" << endl << "7├─┼─┼─┼─┼─┼─┼─┼─┤" << endl << "8├─┼─┼─┼─┼─┼─┼─┼─┤" << endl << "9└─┴─┴─┴─┴─┴─┴─┴─┘";
+	//cout << 1;
+}
+
+void startbgm() {
+	mciSendString(L"open ./music/1.mp3", 0, 0, 0);
+	mciSendString(L"play ./music/1.mp3", 0, 0, 0);
+	if (0) {
+		mciSendString(L"close menubgm repeat", 0, 0, 0);
+	}
+
+
+}
+
+void wlpic(int wl) {
+	
+
+	if (wl == 1) {
+		IMAGE win;
+		loadimage(&win, L"./pic/win.jpg",0,0,true);
+		putimage(0,0,&win);
+	}
+	else {
+		IMAGE lose;
+		loadimage(&lose, L"./pic/win.jpg", 0, 0, true);
+		putimage(0, 0, &lose);
+	}
+	
+	return;
+}
+
+void guiluozi(int color,int x,int y) {
+	cout << "进入骡子函数内部";
+	if (color == 1) {
+		setfillcolor(BLACK);
+		solidcircle(x, y, 15);
+	}
+	else{
+		setfillcolor(WHITE);
+		solidcircle(x, y, 15);
+	}
+	return;
+}
+
+int qipan[9][9][2] = {};
+
+void initnewgame() {
+	for (int i = 0; i <= MAX_N; i++) {
+		//map[i] = new int[MAX_N*MAX_N+1];
+		map[i] = (int*)malloc((MAX_N + 1) * sizeof(int));
+		for (int j = 0; j <= MAX_N; j++) {
+			map[i][j] = 2;
+		}
+	}
+	return;
+}
+
+int choice[2][4][2] = { 358,72,361,349,238,202,488,209,817,79,817,352,696,216,938,223 };
+
+int choosecolor() {
+	while (1) {
+		if (MouseHit()) {
+			MOUSEMSG msg = GetMouseMsg();
+			if (msg.uMsg == WM_LBUTTONDOWN) {
+				for (int i = 0; i < 2; i++) {
+					if (choice[i][0][1] <= msg.y && msg.y <= choice[i][1][1] && choice[i][2][0] <= msg.x && msg.x <= choice[i][3][0]) {
+						switch (i) {
+						case 0: return 0; break;
+						case 1:return 1; break;
+						}
+					}
+
+				}
+			}
+		}
+	}
+		return 0;
+}
+
+int button[2][4][2] = { 979,249,980,301,933,272,1032,271,1129,0,1131,42,1097,19,1162,19 };
+//int savebutton[4][2] = { 979,249,980,301,933,272,1032,271 };
+
+void savefunc(int humaniswhat) {
+	char savestring[200] = { '\0' };
+	int cnt = 0;
+	for (int i = 0; i <= MAX_N; i++) {
+		for (int j = 0; j <= MAX_N; j++) {
+			savestring[cnt++] = map[i][j]+'0';
+		}
+	}
+	savestring[cnt++] = humaniswhat+'0';
+	savestring[cnt++] = Human+'0';
+	ofstream out("save.txt");
+	out << savestring;
+	out.close();
+	
+	settextcolor(WHITE);
+	settextstyle(18, 0, L"楷体");
+	setbkmode(TRANSPARENT);
+	outtextxy(2, 533, L"当前对局已保存");
+	return;
+}
+
+void gamepart(int humancolor,bool newornot,int q) {
+	IMAGE game;
+	loadimage(&game, L"./pic/game.jpg", 0, 0, true);
+	putimage(0, 0, &game);
+		/*while (1) {
+
+			if (MouseHit()) {
+				MOUSEMSG msg = GetMouseMsg();
+				if (msg.uMsg == WM_LBUTTONDOWN) cout << msg.x << "," << msg.y << ",";
+				
+			}
+		}*/
+
+	int qiquan = -1;
+	if (humancolor == 1) qiquan = Human;
+	else qiquan = AI;
+	if (!newornot) {
+		for (int i = 0; i <= MAX_N; i++) {
+			//map[i] = new int[MAX_N*MAX_N+1];
+			//map[i] = (int*)malloc((MAX_N + 1) * sizeof(int));
+			for (int j = 0; j <= MAX_N; j++) {
+				if (map[i][j] == Human) {
+					guiluozi(humancolor, 442 + (j-1) * 42, 127 + (i-1) * 42);
+				}
+				else if (map[i][j] == AI) {
+					guiluozi(!humancolor, 442 + (j-1) * 42, 127 + (i-1) * 42);
+				}
+			}
+		}
+		qiquan = q;
+	}
+
+		if (humancolor == 1) {
+			
+			while (1) {
+				if (qiquan == Human) {
+					bool firstfinish = 0;
+					while (1) {
+						if (MouseHit()) {
+							MOUSEMSG msg = GetMouseMsg();
+							if (msg.uMsg == WM_LBUTTONDOWN) cout << msg.x << "," << msg.y << ",";
+							bool done = 0;
+							if (msg.uMsg == WM_LBUTTONDOWN) {
+								
+								for (int j = 0; j < 2; j++) {
+									if (button[j][0][1] <= msg.y && msg.y <= button[j][1][1] && button[j][2][0] <= msg.x && msg.x <= button[j][3][0]) {
+										switch (j) {
+										case 0:savefunc(humancolor); break;
+										case 1: {putimage(0, 0, &menu); }return;
+										}
+										done = 1;
+										break;
+									}
+								}
+								if (msg.uMsg == WM_LBUTTONDOWN&&!done) {
+									for (int i = 0; i <= 8; i++) {
+										for (int j = 0; j <= 8; j++) {
+											if (abs(msg.x - (442 + j * 42)) <= 10 && abs(msg.y - (127 + i * 42)) <= 10) {
+												if (!avail(i + 1, j + 1, Human, map)) break;
+												cout << "hahaha";
+												map[i + 1][j + 1] = qiquan;
+												guiluozi(humancolor, 442 + j * 42, 127 + i * 42);
+												firstfinish = 1;
+												break;
+											}
+										}
+										if (firstfinish)break;
+									}
+								}
+							}
+						}
+						if (firstfinish) break;
+					}
+				}
+			
+				else {
+					UCT Func;
+					int cur = Func.UCT_Search(map)->loc_inf;
+					//int cur_x = 5, cur_y = 5;
+					//cout << "傻";
+					if (cur == -1) goto yyy;
+					map[(cur - 1) / 9 + 1][cur - ((cur - 1) / 9) * 9] = qiquan;
+					guiluozi(!humancolor, 442 + (cur - ((cur - 1) / 9) * 9-1) * 42, 127 + ((cur - 1) / 9) * 42);
+				}
+				if (judge_gg(map, !qiquan)) {
+					yyy:
+					if (!qiquan == AI) wlpic(0);
+					else wlpic(1);
+					while (1) {
+						if (MouseHit()) {
+							MOUSEMSG msg = GetMouseMsg();
+							//if (msghelp.uMsg == WM_LBUTTONDOWN) cout << msg.x << "," << msg.y << ",";
+							if (msg.uMsg == WM_LBUTTONDOWN) {
+								putimage(0, 0, &menu);
+								return;
+							}
+						}
+					}
+				}
+				qiquan = !qiquan;
+			}
+		}
+		else {
+			//qiquan = AI;
+			while (1) {
+				if (qiquan == Human) {
+					bool firstfinish = 0;
+					while (1) {
+						if (MouseHit()) {
+							MOUSEMSG msg = GetMouseMsg();
+							if (msg.uMsg == WM_LBUTTONDOWN) cout << msg.x << "," << msg.y << ",";
+							bool done = 0;
+							if (msg.uMsg == WM_LBUTTONDOWN) {
+								
+								if (msg.uMsg == WM_LBUTTONDOWN) {
+									for (int j = 0; j < 2; j++) {
+										if (button[j][0][1] <= msg.y && msg.y <= button[j][1][1] && button[j][2][0] <= msg.x && msg.x <= button[j][3][0]) {
+											switch (j) {
+											case 0:savefunc(humancolor); break;
+											case 1: {putimage(0, 0, &menu);
+											}return;
+											}
+											done = 1;
+											break;
+										}
+									}
+								}
+							}
+							if (msg.uMsg == WM_LBUTTONDOWN&&!done) {
+								for (int i = 0; i <= 8; i++) {
+									for (int j = 0; j <= 8; j++) {
+										if (abs(msg.x - (442 + j * 42)) <= 10 && abs(msg.y - (127 + i * 42)) <= 10) {
+											if (!avail(i + 1, j + 1, Human, map)) break;
+											cout << "hahaha";
+											map[i + 1][j + 1] = qiquan;
+											guiluozi(humancolor, 442 + j * 42, 127 + i * 42);
+											firstfinish = 1;
+											break;
+										}
+									}
+									if (firstfinish)break;
+								}
+							}
+						}
+						if (firstfinish) break;
+					}
+				}
+
+				else {
+					UCT Func;
+					int cur = Func.UCT_Search(map)->loc_inf;
+					//int cur_x = 5, cur_y = 5;
+					//cout << "傻";
+					if (cur == -1) goto xxx;
+					cout << cur << endl;
+					map[(cur - 1) / 9 + 1][cur - ((cur - 1) / 9) * 9] = qiquan;
+					guiluozi(!humancolor, 442 + (cur - ((cur - 1) / 9) * 9 - 1) * 42, 127 + ((cur - 1) / 9) * 42);
+				}
+				if (judge_gg(map, !qiquan)) {
+					xxx:
+					if (!qiquan == Human) wlpic(0);
+					else wlpic(1);
+					while (1) {
+						if (MouseHit()) {
+							MOUSEMSG msg = GetMouseMsg();
+							//if (msghelp.uMsg == WM_LBUTTONDOWN) cout << msg.x << "," << msg.y << ",";
+							if (msg.uMsg == WM_LBUTTONDOWN) {
+								putimage(0, 0, &menu);
+								return;
+							}
+						}
+					}
+				}
+				qiquan = !qiquan;
+			}
+		}
+
+}
+
+void Newgame(){
+
+	initnewgame();
+	IMAGE choose;
+	loadimage(&choose, L"./pic/choose.jpg", 0, 0, true);
+	putimage(0, 0, &choose);
+	int humancolor = choosecolor();
+	gamepart(humancolor,1,0);
+	return;
+	
+}
+
+void oldgame() {
+	char a[200] = { '0' };
+	ifstream in;
+	in.open("save.txt", ios::in);
+	in.getline(a, 200);
+	int cnt = 0;
+	for (int i = 0; i <= MAX_N; i++) {
+		//map[i] = new int[MAX_N*MAX_N+1];
+		map[i] = (int*)malloc((MAX_N + 1) * sizeof(int));
+		for (int j = 0; j <= MAX_N; j++) {
+			map[i][j] = a[cnt++]-'0';
+			cout << a[cnt - 1];
+		}
+		cout << endl;
+	}
+	int humancolor;
+	humancolor = a[cnt++] - '0';
+	int qiquan = a[cnt]-'0';
+	cout << "humancolor=" << humancolor << endl << "qiquan=" << qiquan << endl;
+	for (int i = 0; i <= MAX_N; i++) {
+		//map[i] = new int[MAX_N*MAX_N+1];
+		//map[i] = (int*)malloc((MAX_N + 1) * sizeof(int));
+		for (int j = 0; j <= MAX_N; j++) {
+			cout<<map[i][j];
+		}
+		cout << endl;
+	}
+	gamepart(humancolor, 0, qiquan);
+	
+
+	in.close();
+	return;
+}
+
+int menupd[4][4][2] = { 600,130,598,193,440,159,770,161,603,215,605,281,403,244,810,244,603,306,601,373,403,339,809,338,601,395,601,455,439,424,772,421 };
+
+//int menu_func() {
+//
+//}
+
+int main() {
+	//srand(clock());
+	//cout << 1;
+	//startbgm();
+	initgraph(1218, 563, SHOWCONSOLE);
+	loadimage(&warn, L"./pic/b92223bde810459ae4b9da20dfd230b.png", 0, 0, true);
+	loadimage(&menu, L"./pic/menu.jpg", 0, 0, true);
+	loadimage(&gamename, L"./pic/gamename.jpg", 0, 0, true);
+	loadimage(&baoxue, L"./pic/baoxue.png", 0, 0, true);
+
+	
+	IMAGE help;
+	loadimage(&help, L"./pic/help.jpg", 0, 0, true);
+	putimage(0, 0, &baoxue);
+	Sleep(1500);
+	putimage(0, 0, &gamename);
+	Sleep(1500);
+	putimage(0, 0, &warn);
+	Sleep(1500);
+
+	mciSendString(L"open ./music/1.mp3", 0, 0, 0);
+	mciSendString(L"play ./music/1.mp3", 0, 0, 0);
+
+	putimage(0, 0, &menu);
+	MOUSEMSG msg;
+
+	while (1) {
+		
+		if (MouseHit()) {
+			msg = GetMouseMsg();
+			//if (msg.uMsg == WM_LBUTTONDOWN) cout << msg.x << "," << msg.y << ",";
+			if(msg.uMsg==WM_LBUTTONDOWN){
+				for (int i = 0; i < 4; i++) {
+					if (menupd[i][0][1] <= msg.y && msg.y <= menupd[i][1][1] && menupd[i][2][0] <= msg.x && msg.x <= menupd[i][3][0]) {
+						switch (i) {
+						case 0:{Newgame();}; break;
+						case 1: {oldgame(); }; break;
+						case 2: {
+							putimage(0, 0, &help);
+							while (1) {
+								if (MouseHit()) {
+									msg = GetMouseMsg();
+									//if (msghelp.uMsg == WM_LBUTTONDOWN) cout << msg.x << "," << msg.y << ",";
+									if (msg.uMsg == WM_LBUTTONDOWN) {
+										putimage(0, 0, &menu);
+										break;
+									}
+								}
+							}
+						}; break;
+						case 3: {closegraph(); return 0; }; break;
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	
+	//cout << 2;
+	/*for (int i = 1; i < 10; i++)
+		for (int j = 0; j < 10; j++)
+			map[i][j] = 2;*/
+
+
+	//菜单阶段 稍等
+
+
+
+	//单人游戏阶段
+	print_board();
+	int h = 2, l = 2;//光标的初始位置在 1，1
+	char c = ' ';
+	//gotoxy(l, h); //将光标定在 x，y 处
+	c = _getch(); //第一个 getch()的值是 224，代表是方向箭头键 c = getch(); //第二个 getch() 读到的是方向箭头的 ascii 编码 
+
+	while (c != 27) //属于箭头则进入循环
+	{
+		//cout << "qwdaqefwrg356666635456644635656363563563";
+		if (c == 72) //向上
+			h = (h + 6) % 9 + 2;
+		if (c == 75) //向左
+			l = (l + 14) % 18 + 2;
+		if (c == 77) //向右
+			l = l % 18 + 2;
+		if (c == 80) //向下
+			h = (h + 8) % 9 + 2;
+		gotoxy(l, h); //定位光标
+		c = _getch(); //第一个 getch()的值是 224，代表是方向箭头键 c = getch(); //第二个 getch() 读到的是方向箭头的 ascii 编码 
+		if (c == 13) {
+			//if (avail((h + 2) / 2, l + 1, flag, map)) {
+			if (avail(h - 1, l / 2, flag, map)) {
+				gotoxy(l, h);
+				if (flag == 0) {
+					//func_after_put((x + 2) / 2, y + 1, flag,map);
+					func_after_put(h - 1, l / 2, flag, map);
+					cout << "○";
+					flag = !flag;
+					chess_num++;
+					gotoxy(1, 11);
+					cout << "                                                                         ";
+				}
+				else {
+					//func_after_put((x + 2) / 2, y + 1, flag,map);
+					func_after_put(h - 1, l / 2, flag, map);
+					cout << "●";
+					flag = !flag;
+					chess_num++;
+					gotoxy(1, 11);
+					cout << "                                                                         ";
+				}
+			}
+			else continue;
+			//cout << "我";
+			if (judge_gg(map)) {
+				//cout << "冀佳男";
+				gotoxy(1, 11);
+				cout << "游戏结束！" << name[flag] << "子获胜！                       " << endl;
+				cout << "按esc退出                     " << endl;
+			}
+			//cout << "是00000";
+			memset(visited, 0, sizeof(visited));
+			//AI下棋
+			UCT Func;
+			int cur = Func.UCT_Search(map)->loc_inf;
+			//int cur_x = 5, cur_y = 5;
+			//cout << "傻";
+			map[(cur - 1) / 9 + 1][cur - ((cur - 1) / 9) * 9] = AI;
+			gotoxy(1, lines++);
+			cout << endl << "h=" << (cur - 1) / 9 + 1 << " l=" << cur - ((cur - 1) / 9) * 9;
+			gotoxy(2 * (cur - ((cur - 1) / 9) * 9), (cur - 1) / 9 + 2);
+			cout << "○";
+			flag = !flag;
+			chess_num++;
+			gotoxy(1, 11);
+			cout << "                                                                                               ";
+			if (judge_gg(map)) {
+				gotoxy(1, 11);
+				cout << "游戏结束！" << name[flag] << "子获胜！                       " << endl;
+				cout << "按esc退出                     " << endl;
+			}
+		}
+
+	}
+	//双人游戏阶段
+	/*
+	for (int i = 1; i < 10; i++)
+		for (int j = 0; j < 10; j++)
+			map[i][j] = 2;
+	print_board();
+	int x = 2, y = 2;//光标的初始位置在 1，1
+	char c = ' ';
+	gotoxy(x, y); //将光标定在 x，y 处
+	c = _getch(); //第一个 getch()的值是 224，代表是方向箭头键 c = getch(); //第二个 getch() 读到的是方向箭头的 ascii 编码
+	while (c != 27) //属于箭头则进入循环
+	{
+		if (c == 72) //向下
+			y=(y+8)%9;
+		if (c == 75) //向左
+			x=(x+16)%18;
+		if (c == 77) //向
+			x=(x+2)%18;
+		if (c == 80) //向上
+			y=(y+10)%9;
+		gotoxy(x+2, y+2); //定位光标
+		c = _getch(); //第一个 getch()的值是 224，代表是方向箭头键 c = getch(); //第二个 getch() 读到的是方向箭头的 ascii 编码
+		if (c == 13) {
+			if (avail((x + 2) / 2, y + 1, flag)) {
+				gotoxy(x+2,y+2);
+				if (flag == 0) {
+					func_after_put((x + 2) / 2, y + 1, flag);
+					cout<<"○";
+					flag = !flag;
+					chess_num++;
+					gotoxy(1, 11);
+					cout << "                                                                         ";
+				}
+				else {
+					func_after_put((x + 2) / 2, y + 1, flag);
+					cout << "●";
+					flag = !flag;
+					chess_num++;
+					gotoxy(1, 11);
+					cout << "                                                                         ";
+				}
+			}
+		}
+		if (judge_gg()) {
+			gotoxy(1, 11);
+
+			cout << "游戏结束！" << name[flag] << "子获胜！                       " << endl;
+			cout << "按esc退出                     " << endl;
+		}
+		memset(visited, 0, sizeof(visited));
+	}
+	system("pause");
+	return 0;
+	*/
+}
+//○●
