@@ -1,0 +1,142 @@
+#include <iostream>
+#include <algorithm>
+#include <string>
+using namespace std;
+#define dragon 0
+#define ninja 1
+#define iceman 2
+#define lion 3
+#define wolf 4
+int min_life = 999999;
+int hps[5] = { 0 };
+int zero(int n) {
+    if (n == 0) return 2;
+    int ans = 0;
+    int tem = n;
+    while (tem) {
+        tem = tem / 10;
+        ans++;
+    }
+    return 3 - ans;
+}
+
+class hero {
+public:
+    string name;
+    int hp, n_species;
+    string hq_name;
+    hero(string n_in, int hp_in, int num_in, string hq_in, int n_sp) :name(n_in), hp(hp_in), hq_name(hq_in), n_species(n_sp) {}
+
+    void born(int total_num) {
+        n_species++;
+        cout << hq_name << " " << name << " " << total_num + 1 << " born with strength " << hp << "," << n_species << " " << name << " in " << hq_name << " headquarter" << endl;
+
+    }
+};
+//Dragon,Ninja,Iceman,Lion,Wolf
+
+
+class headquarter {
+    friend class hero;
+    string name;
+public:
+    bool state;
+    int life_point, total_num;
+   // int n[5];
+    //int seq_i, seq_l, seq_w, seq_n, seq_d;
+    int point, seq[5];
+    hero heros[5] = { {"dragon",hps[0],0,this->name,0},{"ninja",hps[1],0,this->name,0},{"iceman",hps[2],0,this->name,0},{"lion",hps[3],0,this->name,0},{"wolf",hps[4],0,this->name,0} };
+
+    //int lp_i, lp_l, lp_w, lp_n, lp_d;
+    headquarter(string n_in, int life_p, int* s) :name(n_in), life_point(life_p), state(1), total_num(0),point(-1) {
+        for (int i = 0; i < 5; i++) seq[i] = s[i];
+    }
+    //headquarter() {}
+    //headquarter(headquarter& c){}
+    void Produce(int time) {
+        int tem = zero(time);
+        while (tem--) cout << 0;
+        cout << time << " ";
+        if (life_point < min_life) {
+            cout << name << " headquarter stops making warriors" << endl;
+            state = 0;
+            return;
+        }
+        while (1) {
+            point = (point + 1) % 5;
+            if (0 == seq[point]&&life_point>=hps[0]) {
+                heros[0].born(total_num++);
+               // n[0]++;
+                life_point -= hps[0];
+                break;
+            }
+            else if (1 == seq[point]&&life_point >= hps[1]) {
+                heros[1].born(total_num++);
+                //n[1]++;
+                life_point -= hps[1];
+                break;
+            }
+            else if (2 == seq[point] && life_point >= hps[2]) {
+                heros[2].born(total_num++);
+                //n[2]++;
+                life_point -= hps[2];
+                break;
+            }
+            else if (3 == seq[point] && life_point >= hps[3]) {
+                heros[3].born(total_num++);
+                //n[3]++;
+                life_point -= hps[3];
+                break;
+            }
+            else if(4 == seq[point] && life_point >= hps[4]) {
+                heros[4].born(total_num++);
+                //n[4]++;
+                life_point -= hps[4];
+                break;
+            }
+        }
+        return;
+    }
+
+    void init() {
+        for (int i = 0; i < 5; i++) { heros[i].hp=hps[i]; heros[i].n_species = 0; }
+        total_num = 0;
+        state = 1;
+        point = -1;
+    }
+};
+
+
+int main()
+{
+    
+    int n = 0, life = 0;
+    int seqr[5] = { iceman,lion,wolf,ninja,dragon };
+    int seqb[5] = { lion,dragon,ninja,iceman,wolf };
+    headquarter all[2] = { {"red",life,seqr},{"blue",life,seqb} };
+    cin >> n;
+    
+    for (int j = 0; j < n; j++) {
+        min_life = 999999;
+        cin >> life;
+        all[0].life_point = all[1].life_point = life;
+        for (int i = 0; i < 5; i++) {
+            cin >> hps[i]; min_life = min(min_life, hps[i]);
+        }
+        for (int i = 0; i < 2; i++) {
+            all[i].init();
+        }
+        cout << "Case:" << j + 1 << endl;
+        
+        
+        int time = 0;
+        while (all[0].state || all[1].state) {
+            for (int i = 0; i < 2; i++) {
+                if (all[i].state) all[i].Produce(time);
+            }
+            time++;
+        }
+       
+    }
+    return 0;
+}
