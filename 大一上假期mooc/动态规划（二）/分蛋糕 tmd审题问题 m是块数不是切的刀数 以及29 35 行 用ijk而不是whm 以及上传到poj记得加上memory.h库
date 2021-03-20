@@ -1,0 +1,56 @@
+#include <iostream>
+#include <string>
+#include <memory.h>
+using namespace std;
+
+int func[25][25][25]={0};
+int main(){
+    int w=1,h=0,m=0;
+    while(cin>>w>>h>>m){
+        if(!w) break;
+        memset(func, 0, sizeof(func));
+            for(int k=0;k<=m-1;k++){//k代表刀
+                for(int i=1;i<=w;i++){
+                    for(int j=1;j<=h;j++){
+                    if(k==0){
+                        func[i][j][k]=i*j;
+                        continue;
+                    }
+                    if(i*j<k+1){
+                        func[i][j][k]=w*h+1;
+                        continue;
+                        
+                    }
+                    int SV=99999,SH=99999;
+                    int temmax=0;
+                    for(int iw=1;iw<=i/2;iw++){
+                       // int ik=k;
+                        for(int t=0;t<=k-1;t++){
+                            temmax=max(func[iw][j][t],func[i-iw][j][k-1-t]);
+                            SV=min(SV,temmax);
+                        }
+                    }
+                    for(int ih=1;ih<=j/2;ih++){
+                        for(int t=0;t<=k-1;t++){
+                            temmax=max(func[i][ih][k-1-t],func[i][j-ih][t]);
+                            SH=min(SH,temmax);
+                        }
+                    }
+                    func[i][j][k]=min(SV,SH);
+                     
+                }
+            }
+        }
+        cout<<func[w][h][m-1]<<endl;
+//        for(int k=0;k<=m;k++){//k代表刀
+//            cout<<k<<":"<<endl;
+//        for(int i=1;i<=w;i++){
+//            for(int j=1;j<=h;j++){
+//                    cout<<func[i][j][k]<<" ";
+//                }
+//                cout<<endl;
+//            }
+//        }
+    }
+    return 0;
+}
