@@ -1,0 +1,55 @@
+#include <iostream>
+#include <string>
+#include <memory>
+using namespace std;
+int l=0,n=0,total=0;
+int map[30][30]={0};
+int moves[2][8]={{-2,-2,-1,-1,1,1,2,2},{-1,1,-2,2,-2,2,-1,1}};
+bool able(int locl,int locn){
+    return locl>=1&&locl<=l&&locn<=n&&locn>=1&&!map[locl][locn];
+}
+int records[2][900]={0};
+
+bool dfs(int locl,int locn,int steps){
+    
+    map[locl][locn]=1;
+    records[0][steps]=locl;
+    records[1][steps]=locn;
+    if(steps==l*n) return 1;
+    for(int i=0;i<8;i++){
+        if(able(locl+moves[0][i], locn+moves[1][i])){
+            if(dfs(locl+moves[0][i],locn+moves[1][i],steps+1)) return 1;
+        }
+    }
+    map[locl][locn]=0;
+    return 0;
+}
+
+int main(){
+    cin>>total;
+    int tem=total;
+    
+    while(tem--){
+        cin>>n>>l;
+        memset(map, 0, sizeof(map));
+        bool cont=1;
+        for(int i=1;i<=l;i++){
+            for(int j=1;j<=n;j++){
+                if(dfs(i,j,1)){
+                    cont=0;
+                };
+                if(!cont) break;
+            }
+            if(!cont) break;
+        }
+        cout<<"Scenario #"<<total-tem<<":"<<endl;
+        if(cont) cout<<"impossible"<<endl<<endl;
+        else{
+            for(int i=1;i<=n*l;i++){
+                cout<<char(records[0][i]-1+'A')<<records[1][i];
+            }
+            cout<<endl<<endl;
+        }
+    }
+    return 0;
+}
