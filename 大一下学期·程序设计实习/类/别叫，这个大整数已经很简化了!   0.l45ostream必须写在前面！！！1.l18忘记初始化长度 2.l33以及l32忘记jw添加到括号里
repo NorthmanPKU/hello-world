@@ -1,0 +1,91 @@
+#include <iostream> 
+#include <cstring> 
+#include <cstdlib> 
+#include <cstdio> 
+using namespace std;
+const int MAX = 110; 
+class CHugeInt {
+ int num[210]={0};
+     int length;
+public:
+     CHugeInt(){};
+     CHugeInt(int n){
+          int tem=n,p=0;
+          while(tem){
+               num[p++]=tem%10;
+               tem/=10;
+          }
+         length=p;
+     };
+     CHugeInt(char * n){
+     
+          int l=strlen(n);
+          for(int i=0;i<l;i++){
+               num[l-1-i]=n[i]-'0';
+          }
+         length=l;
+     }
+     CHugeInt operator+(const CHugeInt & x){
+          CHugeInt tem;
+          int ml=max(length,x.length),jw=0;
+          for(int i=0;i<=ml;i++){
+               tem.num[i]=(num[i]+x.num[i]+jw)%10;
+               jw=(num[i]+x.num[i]+jw)/10;
+          }
+          if(tem.num[ml]) tem.length=ml+1;
+          else tem.length=ml;
+          return tem;
+     }
+     
+     friend CHugeInt operator+(int n,CHugeInt & x){
+          CHugeInt y(n);
+          return x+y;
+     }
+     
+     friend ostream & operator<< (ostream & o,const CHugeInt & x){
+          int l=x.length;
+         bool zero=1;
+          for(int i=0;i<l;i++){
+              //if(zero&&!x.num[l-1-i]) continue;
+            o<<x.num[l-1-i];
+              zero=1;
+          }
+          return o;
+     }
+     
+     void operator += (int n){
+          CHugeInt y(n);
+          *this=*this+y;
+          return;
+     }
+     
+     CHugeInt & operator++(){
+          *this+=1;
+          return *this;
+     }
+     
+     CHugeInt operator++(int){
+          CHugeInt tem(*this);
+          *this+=1;
+          return tem;
+     }
+};
+int  main() 
+{ 
+	char s[210];
+	int n;
+
+	while (cin >> s >> n) {
+		CHugeInt a(s);
+		CHugeInt b(n);
+
+		cout << a + b << endl;
+		cout << n + a << endl;
+		cout << a + n << endl;
+		b += n;
+		cout  << ++ b << endl;
+		cout << b++ << endl;
+		cout << b << endl;
+	}
+	return 0;
+}
