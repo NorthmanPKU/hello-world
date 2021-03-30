@@ -1,0 +1,104 @@
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+const int inf=1<<30;
+int chess=0;
+char **p=new char*[6];
+
+bool judge_end(int h,int l){
+    int sum=0;
+    for(int i=0;i<4;i++){
+        sum+=p[h][i];
+    }
+    if(sum==4*'x'||sum==4*'o') return 1;
+    sum=0;
+    for(int i=0;i<4;i++){
+        sum+=p[i][l];
+    }
+    if(sum==4*'x'||sum==4*'o') return 1;
+    if(p[0][0]+p[1][1]+p[2][2]+p[3][3]==4*'x'||p[0][0]+p[1][1]+p[2][2]+p[3][3]==4*'o') return 1;
+    if(p[0][3]+p[1][2]+p[2][1]+p[3][0]==4*'x'||p[0][3]+p[1][2]+p[2][1]+p[3][0]==4*'o') return 1;
+    return 0;
+}
+int MinSearch(int h,int l,int alpha);
+
+int MaxSearch(int h,int l,int beta){
+    if(judge_end(h, l)) return -inf;
+    if(chess==16) return 0;
+    int ans=- inf;
+    int tem=0;
+    for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+            if(p[i][j]=='.'){
+                p[i][j]='x';chess++;
+                tem=MinSearch(i, j, ans);
+                p[i][j]='.';chess--;
+                ans=max(ans,tem);
+                if(ans>=beta) return ans;
+            }
+        }
+    }
+    return ans;
+}
+
+int MinSearch(int h,int l,int alpha){
+    if(judge_end(h, l)) return inf;
+    if(chess==16) return 0;
+    int ans=inf;
+    int tem=0;
+    for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+            if(p[i][j]=='.'){
+                p[i][j]='o';chess++;
+                tem=MaxSearch(i, j, ans);
+                p[i][j]='.';chess--;
+                ans=min(ans,tem);
+                if(ans<=alpha) return ans;
+            }
+        }
+    }
+    return ans;
+}
+
+void func(){
+    for(int i=0;i<4;i++){
+        for(int j=0;j<4;j++){
+            if(p[i][j]!='.') continue;
+            p[i][j]='x';chess++;
+            int tem=MinSearch(i, j, -inf);
+            p[i][j]='.';chess--;
+            if(tem==inf){
+                cout<<"("<<i<<","<<j<<")"<<endl;
+                return;
+            }
+        }
+    }
+    cout<<"#####"<<endl;
+    return;
+}
+
+//char board[6][6]={'\0'};
+int main() {
+    //cout<<(int)'o'<<" "<<(int)'x'<<" "<<(int)'.'<<endl;
+    
+    for(int i=0;i<6;i++) p[i]=new char[6];
+    char a;
+    while(cin>>a){
+        chess=0;
+        if(a=='$') break;
+        for(int i=0;i<4;i++){
+            for(int j=0;j<4;j++){
+                cin>>p[i][j];
+                if(p[i][j]!='.') chess++;
+            }
+        }
+        if(chess<=4){
+            cout<<"#####"<<endl;
+            continue;
+        }
+        func();
+    }
+    return 0;
+}
+
