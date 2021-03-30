@@ -1,0 +1,191 @@
+#include <iostream>
+#include <cstdio>
+#include <string>
+#include <iomanip>
+#include<string.h>
+using namespace std;
+const int  WARRIOR_NUM = 5;
+const int Dragon=0;
+const int Ninja=1;
+const int Iceman=2;
+const int Lion=3;
+const int Wolf=4;
+/*
+string Warrior::names[WARRIOR_NUM] = { "dragon","ninja","iceman","lion","wolf" };
+红方司令部按照 iceman、lion、wolf、ninja、dragon 的顺序制造武士。
+蓝方司令部按照 lion、dragon、ninja、iceman、wolf 的顺序制造武士。
+*/
+ 
+class Headquarter;
+class weapon;
+class Warrior
+{
+    private:
+        Headquarter * pHeadquarter;
+        int kindNo; //武士的种类编号 0 dragon 1 ninja 2 iceman 3 lion 4 wolf
+        int no;
+        int hp;
+    weapon * wp1;
+    weapon * wp2;
+    int loyalty;
+    double morale;
+    
+    public:
+        static string names[WARRIOR_NUM];
+        static int initialLifeValue [WARRIOR_NUM];
+        Warrior( Headquarter * p,int no_,int kindNo_ );
+        void PrintResult(int nTime);
+    void PrintOtherInf();
+};
+
+class weapon{
+public:
+    char name[20];
+    int no;
+    weapon(int no_):no(no_){
+        switch(this->no){
+            case 0: strcpy(name,"sword");break;
+            case 1: strcpy(name,"bomb");break;
+            case 2: strcpy(name,"arrow");break;
+        }
+    };
+    
+};
+ 
+class Headquarter
+{
+    private:
+        int totalLifeValue;
+        bool stopped;
+        int totalWarriorNum;
+        int color;
+        int curMakingSeqIdx; //当前要制造的武士是制造序列中的第几个
+        int warriorNum[WARRIOR_NUM]; //存放每种武士的数量
+        Warrior * pWarriors[1000];
+    public:
+        friend class Warrior;//为啥要定义友元？   方便访问私有成员
+        static int makingSeq[2][WARRIOR_NUM]; //武士的制作顺序序列
+        void Init(int color_, int lv);
+        ~Headquarter () ;
+        int Produce(int nTime);
+        string GetColor();
+ 
+};
+
+void Warrior::PrintOtherInf(){
+    
+    switch (this->kindNo) {
+        case Dragon:cout<<"It has a "<<this->wp1->name<<",and it's morale is "<<fixed<<setprecision(2)<<morale<<endl;break;
+        case Ninja:cout<<"It has a "<<wp1->name<<" and a "<<wp2->name<<endl;break;
+        case Iceman:cout<<"It has a "<<wp1->name<<endl;break;
+        case Lion:cout<<"It's loyalty is "<<loyalty<<endl;break;
+    }
+    
+}
+ 
+Warrior::Warrior( Headquarter * p,int no_,int kindNo_ ) {
+    no = no_;
+    kindNo = kindNo_;
+    pHeadquarter = p;
+    switch(kindNo){
+        case Dragon:{morale=p->totalLifeValue/(double)initialLifeValue[Dragon];
+            wp1= new weapon(no%3);}break;
+        case Ninja:{wp2=new weapon((no+1)%3);wp1= new weapon(no%3);}break;
+        case Iceman:{wp1=new weapon(no%3);}break;
+        case Lion:{loyalty=p->totalLifeValue;}break;
+    }
+}
+ 
+void Warrior::PrintResult(int nTime)
+{
+    string color =  pHeadquarter->GetColor();
+    printf("%03d %s %s %d born with strength %d,%d %s in %s headquarter\n"    ,
+        nTime, color.c_str(), names[kindNo].c_str(), no, initialLifeValue[kindNo],
+        pHeadquarter->warriorNum[kindNo],names[kindNo].c_str(),color.c_str());// string 在printf中输出的函数调用c_str()
+    PrintOtherInf();
+    
+}
+ 
+void Headquarter::Init(int color_, int lv)
+{
+    color = color_;
+    totalLifeValue = lv;
+    totalWarriorNum = 0;
+    stopped = false;
+    curMakingSeqIdx = 0;
+    for( int i = 0;i < WARRIOR_NUM;i++ )
+        warriorNum[i] = 0;
+}
+ 
+Headquarter::~Headquarter () {
+    for( int i = 0;i < totalWarriorNum;i++ )
+        delete pWarriors[i];
+}
+ 
+int Headquarter::Produce(int nTime)
+{
+ 
+    if( stopped )
+        return 0;
+    int searchingTimes = 0;
+    while( Warrior::initialLifeValue[makingSeq[color][curMakingSeqIdx]] > totalLifeValue &&
+        searchingTimes < WARRIOR_NUM ) {
+        curMakingSeqIdx = ( curMakingSeqIdx + 1 ) % WARRIOR_NUM;
+        searchingTimes++;
+    }
+    int kindNo = makingSeq[color][curMakingSeqIdx];
+    if( Warrior::initialLifeValue[kindNo] > totalLifeValue ) {
+        stopped = true;
+        if( color == 0)
+            printf("%03d red headquarter stops making warriors\n",nTime);
+        else
+            printf("%03d blue headquarter stops making warriors\n",nTime);
+        return 0;
+    }
+    //制作士兵：
+    totalLifeValue -= Warrior::initialLifeValue[kindNo];
+    curMakingSeqIdx = ( curMakingSeqIdx + 1 ) % WARRIOR_NUM;
+    pWarriors[totalWarriorNum] = new Warrior( this,totalWarriorNum+1,kindNo);
+    warriorNum[kindNo]++;
+    pWarriors[totalWarriorNum]->PrintResult(nTime);
+    totalWarriorNum++;
+    return 1;
+}
+ 
+string Headquarter::GetColor()
+{
+    if( color == 0)
+        return "red";
+    else
+        return "blue";
+}
+ 
+string Warrior::names[WARRIOR_NUM] = { "dragon","ninja","iceman","lion","wolf" };
+int Warrior::initialLifeValue [WARRIOR_NUM];
+int Headquarter::makingSeq[2][WARRIOR_NUM] = { { 2,3,4,1,0 },{3,0,1,2,4} }; //两个司令部武士的制作顺序序列
+ 
+int main()
+{
+    int t;
+    int m;
+    Headquarter RedHead,BlueHead;
+    scanf("%d",&t);
+    int nCaseNo = 1;
+    while ( t-- ) {
+        printf("Case:%d\n",nCaseNo++);
+        scanf("%d",&m);
+        for( int i = 0;i < WARRIOR_NUM;i++ )
+        scanf("%d", & Warrior::initialLifeValue[i]);
+        RedHead.Init(0,m);
+        BlueHead.Init(1,m);
+        int nTime = 0;
+        while(true) {
+            int tmp1 = RedHead.Produce(nTime);
+            int tmp2 = BlueHead.Produce(nTime);
+            if( tmp1 == 0 && tmp2 == 0)
+                break;
+            nTime++;
+        }
+    }
+    return 0;
+}
