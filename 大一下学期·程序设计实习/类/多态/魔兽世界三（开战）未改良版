@@ -1,0 +1,773 @@
+#include <iostream>
+#include <cstdio>
+#include <string>
+#include <iomanip>
+#include<string.h>
+#include <stdlib.h>
+using namespace std;
+const int  WARRIOR_NUM = 5;
+const int Dragon=0;
+const int Ninja=1;
+const int Iceman=2;
+const int Lion=3;
+const int Wolf=4;
+const int Sword=0;
+const int Bomb=1;
+const int Arrow=2;
+int t;//组数
+int time_limit;//时限
+int m,n,k;//生命元、城市数量、叛逃改变量
+int nTime=0;
+string weaponnames[3]={"sword","bomb","arrow"};
+/*
+string Warrior::names[WARRIOR_NUM] = { "dragon","ninja","iceman","lion","wolf" };
+红方司令部按照 iceman、lion、wolf、ninja、dragon 的顺序制造武士。
+蓝方司令部按照 lion、dragon、ninja、iceman、wolf 的顺序制造武士。
+*/
+int MinutesTable[7]={0,5,10,35,40,50,55};
+int GetMinute(int t){return MinutesTable[t%7];}
+int GetHour(int t){return t/7;}
+int StandardTimetoNormal(int t){
+    return GetHour(t)*60+GetMinute(t);
+}
+void timeCout(int h,int m){
+    cout<<setw(3)<<setfill('0')<<h;
+    cout<<":"<<setw(2)<<setfill('0')<<m;
+    cout<<" ";
+}
+class Headquarter;
+class weapon;
+class city;
+class Warrior;
+class weapon{
+public:
+    //char name[20];
+    int no=-1;
+    int AttackValue=0;
+    int UsedTimes=0;
+    virtual string name()=0;
+    virtual int Attack(int atk,int & hp)=0;
+    weapon(int n):no(n){};
+    virtual ~weapon(){};
+};
+
+void SelfSortForRob(weapon** p,int n){
+    for(int i=n;i>0;i--)
+    for(int j=0;j<i-1;j++){
+        if(p[j]->no<p[j+1]->no) swap(p[j], p[j+1]);
+        else if(p[j]->no==p[j+1]->no&&p[j]->no==Arrow){
+            if(p[j]->UsedTimes<p[j+1]->UsedTimes) swap(p[j], p[j+1]);
+        }
+    }
+}
+void SelfSortForFight(weapon** p,int n){
+    for(int i=n;i>0;i--)
+    for(int j=0;j<i-1;j++){
+        if(p[j]->no<p[j+1]->no) swap(p[j], p[j+1]);
+        else if(p[j]->no==p[j+1]->no&&p[j]->no==Arrow){
+            if(p[j]->UsedTimes>p[j+1]->UsedTimes) swap(p[j], p[j+1]);
+        }
+    }
+}
+
+class sword: public weapon{
+public:
+    virtual string name(){
+        return "sword";
+    }
+    virtual int Attack(int atk,int & hp){
+        hp-=atk*2/10;
+        return atk*2/10;
+    }
+    sword(int UsersAttackValue):weapon(0){
+        AttackValue=UsersAttackValue*2/10;
+        if(UsersAttackValue==150) AttackValue=30;
+    }
+};
+class bomb: public weapon{
+public:
+    virtual string name(){
+        return "bomb";
+    }
+    virtual int Attack(int atk,int & hp){
+        hp-=atk*4/10;
+        return atk*4/10;
+    }
+    bomb(int UsersAttackValue):weapon(1){
+        AttackValue=UsersAttackValue*4/10;
+    }
+};
+class arrow: public weapon{
+public:
+    virtual string name(){
+        return "arrow";
+    }
+    virtual int Attack(int atk,int & hp){
+        hp-=atk*3/10;
+        return atk*3/10;
+    }
+    arrow(int UsersAttackValue):weapon(2){
+        AttackValue=UsersAttackValue*3/10;
+    }
+};
+class Headquarter
+{
+private:
+    bool stopped=0;
+    int totalWarriorNum=0;
+    int color=-1;
+    int curMakingSeqIdx=0; //当前要制造的武士是制造序列中的第几个
+    int warriorNum[WARRIOR_NUM]; //存放每种武士的数量
+    Warrior * pWarriors[1000];
+public:
+    int totalLifeValue;
+    friend class Warrior;//为啥要定义友元？   方便访问私有成员
+    friend class ninja;
+    friend class dragon;
+    friend class wolf;
+    friend class iceman;
+    friend class lion;
+    static int makingSeq[2][WARRIOR_NUM]; //武士的制作顺序序列
+    void Init(int color_, int lv);
+    ~Headquarter () ;
+    int Produce(int nTime,city & c);
+    string GetColor();
+ 
+};
+
+int SortForFight(const void *p1, const void *p2){
+    weapon *pp1=(weapon*)p1;
+    weapon *pp2=(weapon*)p2;
+//    if(pp1->no>pp2->no) return -1;
+//    else if(pp1->no<pp2->no) return 1;
+//    else if(pp1->no==2&&pp2->no==2){
+//        if(pp1->UsedTimes>pp2->UsedTimes) return 1;
+//        else if(pp1->UsedTimes<pp2->UsedTimes) return -1;
+//    }
+    if(pp1->no!=pp2->no) return pp1->no-pp2->no;
+    else return pp2->UsedTimes-pp1->UsedTimes;
+    return 0;
+}
+int SortForRob(const void *p1, const void *p2){
+    weapon *pp1=(weapon*)p1;
+    weapon *pp2=(weapon*)p2;
+    if(pp1->no>pp2->no) return -1;
+    else if(pp1->no<pp2->no) return 1;
+    else if(pp1->no==2&&pp2->no==2){
+        if(pp1->UsedTimes>pp2->UsedTimes) return -1;
+        else if(pp1->UsedTimes<pp2->UsedTimes) return 1;
+    }
+    return 0;
+}
+
+class Warrior
+{
+private:
+public:
+    Headquarter * pHeadquarter;
+    int kindNo=-1; //武士的种类编号 0 dragon 1 ninja 2 iceman 3 lion 4 wolf
+    int no=-1;//武士在所属营地的总编号
+    int hp=0;
+    int BirthTime=0;
+    int n_weapon[3]={0};
+    weapon * WeaponPackage[12];
+    //weapon *WeaponsForRob[12];
+    int AttackValue=0;
+    int WeaponSum=0;
+    
+    void Attack(Warrior *p,int WeaponNum){
+        //cout<<"到此一游"<<WeaponSum<<endl;
+        if(WeaponSum==0) return;
+        //p->hp-=WeaponPackage[WeaponNum]->AttackValue;
+        int HURT=WeaponPackage[WeaponNum]->Attack(AttackValue, p->hp);
+        //cout<<WeaponPackage[WeaponNum]->AttackValue<<endl;
+//        cout<<pHeadquarter->GetColor()<<" "<<names[kindNo]<<" used "<<WeaponPackage[WeaponNum]->name()<<" to attack and the atk is"<<HURT<<" while its user is "<<AttackValue<<endl;
+        if(WeaponPackage[WeaponNum]->no==Bomb&&kindNo!=Ninja) hp-=HURT*5/10;
+        if(WeaponPackage[WeaponNum]->no==Arrow) WeaponPackage[WeaponNum]->UsedTimes++;
+        if(WeaponPackage[WeaponNum]->no==Bomb||WeaponPackage[WeaponNum]->UsedTimes==2){
+            if(WeaponPackage[WeaponNum]->no==Bomb) n_weapon[Bomb]--;
+            else n_weapon[Arrow]--;
+            MoveWeapons(WeaponNum+1, WeaponSum-1);
+            WeaponSum--;
+        }
+    };
+    void MoveWeapons(int i,int j){
+        //delete WeaponPackage[i-1];
+        for(int k=i-1;k<=j-1;k++){
+            WeaponPackage[k]=WeaponPackage[k+1];
+            k++;
+        }
+        WeaponPackage[j]=NULL;
+    }
+    virtual int MarchOnEvent()=0;
+    
+    static string names[WARRIOR_NUM];
+    static int initialLifeValue [WARRIOR_NUM];
+    static int initialAttackValue [WARRIOR_NUM];
+    Warrior( Headquarter * p,int no_,int kindNo_,int intime);
+    void PrintResult(int nTime);
+    virtual void PrintOtherInf()=0;
+    void RobWhenWin(Warrior *p){
+        //qsort(p->WeaponPackage, p->WeaponSum, sizeof(weapon*), SortForRob);
+        SelfSortForRob(p->WeaponPackage, p->WeaponSum);
+        while(WeaponSum<10&&p->WeaponSum>0){
+            WeaponPackage[ WeaponSum ] = p->WeaponPackage[ p->WeaponSum - 1 ];
+            n_weapon[WeaponPackage[WeaponSum]->no]++;
+            p->n_weapon[WeaponPackage[WeaponSum]->no]--;
+            p->WeaponSum--;
+            WeaponSum++;
+        }
+    }
+    void WolfRob(Warrior *p,int c){
+        //qsort(p->WeaponPackage, p->WeaponSum, sizeof(weapon*), SortForRob);
+        SelfSortForRob(p->WeaponPackage, p->WeaponSum);
+        if(p->kindNo==Wolf||WeaponSum==10||p->WeaponSum==0) return;
+//        if(p->WeaponSum){
+        //cout<<pHeadquarter->GetColor()<<" wolf "<<no<<" sort and "<<p->names[p->kindNo]<<"'s weaponpacket:";
+//        for(int i=0;i<p->WeaponSum;i++) cout<<p->WeaponPackage[i]->name()<<"("<<p->WeaponPackage[i]->UsedTimes<<")"<<"("<<p->WeaponPackage[i]->no<<")"<<" ";
+//            cout<<endl;}
+        int kind=p->WeaponPackage[p->WeaponSum-1]->no;
+        int sum=0;
+        for(int i=p->WeaponSum-1;i>=0&&p->WeaponPackage[i]->no==kind&&WeaponSum<10&&p->WeaponSum>0;i--){
+            WeaponPackage[WeaponSum]=p->WeaponPackage[i];
+            n_weapon[WeaponPackage[WeaponSum]->no]++;
+            p->n_weapon[WeaponPackage[WeaponSum]->no]--;
+            p->WeaponSum--;
+            WeaponSum++;
+            sum++;
+        }
+        timeCout(GetHour(nTime), GetMinute(nTime));
+        cout<<pHeadquarter->GetColor()<<" wolf "<<no<<" took "<<sum<<" "<<weaponnames[kind]<<" from "<<p->pHeadquarter->GetColor()<<" "<<names[p->kindNo]<<" "<<p->no<<" in city "<<c<<endl;
+    }
+    
+    void LionRunAway(){
+        timeCout(GetHour(nTime), GetMinute(nTime));
+        cout<<pHeadquarter->GetColor()<<" lion "<<no<<" ran away"<<endl;
+        delete this;
+    }
+//    void SortForBeingRobbed();
+//    void SortForFight();
+//    virtual void Attack(){};
+    virtual int GetLoyalty()=0;
+    virtual ~Warrior(){
+        //for(int i=0;i<WeaponSum;i++)
+            //delete WeaponPackage[i];
+    };
+};
+
+class dragon : public Warrior{
+public:
+    double morale;
+    dragon(Headquarter * p,int no_,int kindNo_,int intime):Warrior(p,no_,kindNo_,intime){
+        morale=p->totalLifeValue/(double)initialLifeValue[Dragon];
+        switch (no%3) {
+            case 0:WeaponPackage[0]=new sword(initialAttackValue[Dragon]);n_weapon[Sword]++;WeaponSum++;break;
+            case 1:WeaponPackage[0]=new bomb(initialAttackValue[Dragon]);n_weapon[Bomb]++;WeaponSum++;break;
+            case 2:WeaponPackage[0]=new arrow(initialAttackValue[Dragon]);n_weapon[Arrow]++;WeaponSum++;break;
+        }
+        //wp1= new weapon(no%3);
+    };
+    virtual void PrintOtherInf(){
+        //cout<<"It has a "<<WeaponPackage[0]->name()<<",and it's morale is "<<fixed<<setprecision(2)<<morale<<endl;
+    };
+    int MarchOnEvent(){return 0;};
+    int GetLoyalty(){return 1;}
+};
+class ninja : public Warrior{
+public:
+    ninja(Headquarter * p,int no_,int kindNo_,int intime):Warrior(p,no_,kindNo_,intime){
+        switch (no%3) {
+            case 0:WeaponPackage[0]=new sword(initialAttackValue[Ninja]);n_weapon[Sword]++;WeaponSum++;break;
+            case 1:WeaponPackage[0]=new bomb(initialAttackValue[Ninja]);n_weapon[Bomb]++;WeaponSum++;break;
+            case 2:WeaponPackage[0]=new arrow(initialAttackValue[Ninja]);n_weapon[Arrow]++;WeaponSum++;break;
+        }
+        switch ((no+1)%3) {
+            case 0:WeaponPackage[1]=new sword(initialAttackValue[Ninja]);n_weapon[Sword]++;WeaponSum++;break;
+            case 1:WeaponPackage[1]=new bomb(initialAttackValue[Ninja]);n_weapon[Bomb]++;WeaponSum++;break;
+            case 2:WeaponPackage[1]=new arrow(initialAttackValue[Ninja]);n_weapon[Arrow]++;WeaponSum++;break;
+        }
+    };
+    virtual void PrintOtherInf(){
+//        cout<<"It has a "<<WeaponPackage[0]->name()<<" and a "<<WeaponPackage[1]->name()<<endl;
+    };
+    int MarchOnEvent(){return 0;};
+    int GetLoyalty(){return 1;}
+};
+class iceman : public Warrior{
+public:
+    iceman(Headquarter * p,int no_,int kindNo_,int intime):Warrior(p,no_,kindNo_,intime){
+        switch (no%3) {
+            case 0:WeaponPackage[0]=new sword(initialAttackValue[Iceman]);n_weapon[Sword]++;WeaponSum++;break;
+            case 1:WeaponPackage[0]=new bomb(initialAttackValue[Iceman]);n_weapon[Bomb]++;WeaponSum++;break;
+            case 2:WeaponPackage[0]=new arrow(initialAttackValue[Iceman]);n_weapon[Arrow]++;WeaponSum++;break;
+        }
+        //wp1= new weapon(no%3);
+    };
+    virtual void PrintOtherInf(){
+        //cout<<"It has a "<<WeaponPackage[0]->name()<<endl;
+    };
+    int MarchOnEvent(){
+        hp-=hp/10;
+        if(hp<=0) return 1;
+        return 0;
+    };
+    int GetLoyalty(){return 1;}
+};
+class lion : public Warrior{
+public:
+    int loyalty;
+    lion(Headquarter * p,int no_,int kindNo_,int intime):Warrior(p,no_,kindNo_,intime){
+        loyalty=p->totalLifeValue;
+        switch (no%3) {
+            case 0:WeaponPackage[0]=new sword(initialAttackValue[Lion]);n_weapon[Sword]++;WeaponSum++;break;
+            case 1:WeaponPackage[0]=new bomb(initialAttackValue[Lion]);n_weapon[Bomb]++;WeaponSum++;break;
+            case 2:WeaponPackage[0]=new arrow(initialAttackValue[Lion]);n_weapon[Arrow]++;WeaponSum++;break;
+        }
+    };
+    virtual void PrintOtherInf(){
+        cout<<"Its loyalty is "<<loyalty<<endl;
+    };
+    int MarchOnEvent(){
+        loyalty-=k;
+        return 0;
+    };
+    int GetLoyalty(){return loyalty;}
+};
+class wolf : public Warrior{
+public:
+    wolf(Headquarter * p,int no_,int kindNo_,int intime):Warrior(p,no_,kindNo_,intime){
+        
+        //wp1= new weapon(no%3);
+    };
+    virtual void PrintOtherInf(){};
+    int MarchOnEvent(){return 0;};
+    int GetLoyalty(){return 1;}
+};
+
+class city{
+public:
+    int No;
+    Warrior *WarriorFromRed;
+    Warrior *WarriorFromBlue;
+    Warrior *temWarriorFromRed;
+    void Fight(){
+        if(WarriorFromRed==NULL||WarriorFromBlue==NULL) return;
+        int h=GetHour(nTime);
+        int m=GetMinute(nTime);
+        //qsort(WarriorFromRed->WeaponPackage,WarriorFromRed->WeaponSum,sizeof(weapon*),SortForFight);
+        SelfSortForFight(WarriorFromRed->WeaponPackage, WarriorFromRed->WeaponSum);
+//        if(WarriorFromRed->WeaponSum){
+//        cout<<"red "<<WarriorFromRed->names[WarriorFromRed->kindNo]<<"'s weaponpacket:";
+//        for(int i=0;i<WarriorFromRed->WeaponSum;i++) cout<<WarriorFromRed->WeaponPackage[i]->name()<<"("<<WarriorFromRed->WeaponPackage[i]->UsedTimes<<")"<<"("<<WarriorFromRed->WeaponPackage[i]->no<<")"<<" ";
+//            cout<<endl;}
+        //qsort(WarriorFromBlue->WeaponPackage,WarriorFromBlue->WeaponSum,sizeof(weapon*),SortForFight);
+        SelfSortForFight(WarriorFromBlue->WeaponPackage, WarriorFromBlue->WeaponSum);
+//        if(WarriorFromBlue->WeaponSum){
+//            cout<<"blue "<<WarriorFromBlue->names[WarriorFromBlue->kindNo]<<"'s weaponpacket:";
+//        for(int i=0;i<WarriorFromBlue->WeaponSum;i++) cout<<WarriorFromBlue->WeaponPackage[i]->name()<<"("<<WarriorFromBlue->WeaponPackage[i]->UsedTimes<<")"<<"("<<WarriorFromBlue->WeaponPackage[i]->no<<")"<<" ";
+//            cout<<endl;}
+        int pointerForRed=0;
+        int pointerForBlue=0;
+        int TotalATKRed=0,TotalATKBlue=0;
+        int sheep=0;
+        if(No%2==1){//red first
+            int i=0;
+            for(int j=0;j<WarriorFromRed->WeaponSum;j++){
+                TotalATKRed+=WarriorFromRed->WeaponPackage[j]->Attack(WarriorFromRed->AttackValue, sheep);
+            }
+            for(int j=0;j<WarriorFromBlue->WeaponSum;j++){
+                TotalATKBlue+=WarriorFromBlue->WeaponPackage[j]->Attack(WarriorFromBlue->AttackValue, sheep);
+            }
+            while(WarriorFromRed->hp>0&&WarriorFromBlue->hp>0&&((WarriorFromRed->WeaponSum>0&&(TotalATKRed>0||WarriorFromRed->n_weapon[Bomb]+WarriorFromRed->n_weapon[Arrow]>0))||(WarriorFromBlue->WeaponSum>0&&(TotalATKBlue>0||WarriorFromBlue->n_weapon[Bomb]+WarriorFromBlue->n_weapon[Arrow]>0)))){
+                
+                if(i%2==0){
+                    if(pointerForRed<=0) pointerForRed=WarriorFromRed->WeaponSum-1;
+                    else pointerForRed--;
+                    WarriorFromRed->Attack(WarriorFromBlue,pointerForRed);
+                }
+                else{
+                    if(pointerForBlue<=0) pointerForBlue=WarriorFromBlue->WeaponSum-1;
+                    else pointerForBlue--;
+                    WarriorFromBlue->Attack(WarriorFromRed,pointerForBlue);
+                }
+                i++;
+                TotalATKRed=0;TotalATKBlue=0;
+                for(int j=0;j<WarriorFromRed->WeaponSum;j++){
+                    TotalATKRed+=WarriorFromRed->WeaponPackage[j]->Attack(WarriorFromRed->AttackValue, sheep);
+                }
+                for(int j=0;j<WarriorFromBlue->WeaponSum;j++){
+                    TotalATKBlue+=WarriorFromBlue->WeaponPackage[j]->Attack(WarriorFromBlue->AttackValue, sheep);
+                }
+            }
+        }
+        else{//blue first
+            int i=1;
+            for(int j=0;j<WarriorFromRed->WeaponSum;j++){
+                TotalATKRed+=WarriorFromRed->WeaponPackage[j]->Attack(WarriorFromRed->AttackValue, sheep);
+            }
+            for(int j=0;j<WarriorFromBlue->WeaponSum;j++){
+                TotalATKBlue+=WarriorFromBlue->WeaponPackage[j]->Attack(WarriorFromBlue->AttackValue, sheep);
+            }
+            while(WarriorFromRed->hp>0&&WarriorFromBlue->hp>0&&((WarriorFromRed->WeaponSum>0&&(TotalATKRed>0||WarriorFromRed->n_weapon[Bomb]+WarriorFromRed->n_weapon[Arrow]>0))||(WarriorFromBlue->WeaponSum>0&&(TotalATKBlue>0||WarriorFromBlue->n_weapon[Bomb]+WarriorFromBlue->n_weapon[Arrow]>0)))){
+                
+                //cout<<pointerForBlue<<endl;
+                if(i%2==0){
+                    if(pointerForRed<=0) pointerForRed=WarriorFromRed->WeaponSum-1;
+                    else pointerForRed--;
+                    WarriorFromRed->Attack(WarriorFromBlue,pointerForRed);
+                }
+                else{
+                    if(pointerForBlue<=0) pointerForBlue=WarriorFromBlue->WeaponSum-1;
+                    else pointerForBlue--;
+                    WarriorFromBlue->Attack(WarriorFromRed,pointerForBlue);
+                }
+                i++;
+                TotalATKRed=0;TotalATKBlue=0;
+                for(int j=0;j<WarriorFromRed->WeaponSum;j++){
+                    TotalATKRed+=WarriorFromRed->WeaponPackage[j]->Attack(WarriorFromRed->AttackValue, sheep);
+                }
+                for(int j=0;j<WarriorFromBlue->WeaponSum;j++){
+                    TotalATKBlue+=WarriorFromBlue->WeaponPackage[j]->Attack(WarriorFromBlue->AttackValue, sheep);
+                }
+            }
+        }
+        if(WarriorFromBlue->hp<=0&&WarriorFromRed->hp<=0){//双亡
+            timeCout(h, m);
+            cout<<"both red "<<WarriorFromRed->names[WarriorFromRed->kindNo]<<" "<<WarriorFromRed->no<<" and blue "<<WarriorFromRed->names[WarriorFromBlue->kindNo]<<" "<<WarriorFromBlue->no<<" died in city "<<No<<endl;
+            delete WarriorFromBlue;
+            delete WarriorFromRed;
+            WarriorFromBlue=NULL;
+            WarriorFromRed=NULL;
+        }
+        else if(WarriorFromBlue->hp>0&&WarriorFromRed->hp>0){//平局
+            timeCout(h, m);
+            cout<<"both red "<<WarriorFromRed->names[WarriorFromRed->kindNo]<<" "<<WarriorFromRed->no<<" and blue "<<WarriorFromRed->names[WarriorFromBlue->kindNo]<<" "<<WarriorFromBlue->no<<" were alive in city "<<No<<endl;
+            
+        }
+        else{//正常局面
+            if(WarriorFromRed->hp>0){
+                timeCout(h, m);
+                cout<<"red "<<WarriorFromRed->names[WarriorFromRed->kindNo]<<" "<<WarriorFromRed->no<<" killed blue "<<WarriorFromRed->names[WarriorFromBlue->kindNo]<<" "<<WarriorFromBlue->no<<" in city "<<No<<" remaining "<<WarriorFromRed->hp<<" elements"<<endl;
+                WarriorFromRed->RobWhenWin(WarriorFromBlue);
+                delete WarriorFromBlue;
+                WarriorFromBlue=NULL;
+            }
+            else{
+                timeCout(h, m);
+                cout<<"blue "<<WarriorFromBlue->names[WarriorFromBlue->kindNo]<<" "<<WarriorFromBlue->no<<" killed red "<<WarriorFromRed->names[WarriorFromRed->kindNo]<<" "<<WarriorFromRed->no<<" in city "<<No<<" remaining "<<WarriorFromBlue->hp<<" elements"<<endl;
+                WarriorFromBlue->RobWhenWin(WarriorFromRed);
+                delete WarriorFromRed;
+                WarriorFromRed=NULL;
+            }
+        }
+        if(WarriorFromRed&&WarriorFromRed->kindNo==Dragon){
+            timeCout(GetHour(nTime), GetMinute(nTime));
+            cout<<"red dragon "<<WarriorFromRed->no<<" yelled in city "<<No<<endl;
+        }
+        if(WarriorFromBlue&&WarriorFromBlue->kindNo==Dragon) {
+            timeCout(GetHour(nTime), GetMinute(nTime));
+            cout<<"blue dragon "<<WarriorFromBlue->no<<" yelled in city "<<No<<endl;
+        }
+    }
+    
+    void NaughtyWolf(){
+        if(WarriorFromRed&&WarriorFromBlue){
+        if(WarriorFromRed->kindNo==Wolf&&WarriorFromBlue->kindNo!=Wolf) WarriorFromRed->WolfRob(WarriorFromBlue, No);
+        if(WarriorFromBlue->kindNo==Wolf&&WarriorFromRed->kindNo!=Wolf) WarriorFromBlue->WolfRob(WarriorFromRed, No);}
+    }
+    
+    void NaughtyLion(){
+        if(WarriorFromRed)
+        if(WarriorFromRed->kindNo==Lion&&WarriorFromRed->GetLoyalty()<=0){
+            WarriorFromRed->LionRunAway();
+            WarriorFromRed=NULL;
+        }
+        if(WarriorFromBlue)
+        if(WarriorFromBlue->kindNo==Lion&&WarriorFromBlue->GetLoyalty()<=0){
+            WarriorFromBlue->LionRunAway();
+            WarriorFromBlue=NULL;
+        }
+    }
+    
+    void ShowMeWhatYouveGot(){
+        if(WarriorFromRed){
+            timeCout(GetHour(nTime), GetMinute(nTime));
+            cout<<"red "<<WarriorFromRed->names[WarriorFromRed->kindNo]<<" "<<WarriorFromRed->no<<" has "<<WarriorFromRed->n_weapon[Sword]<<" sword "<<WarriorFromRed->n_weapon[Bomb]<<" bomb "<<WarriorFromRed->n_weapon[Arrow]<<" arrow and "<<WarriorFromRed->hp<<" elements"<<endl;
+        }
+        if(WarriorFromBlue){
+            timeCout(GetHour(nTime), GetMinute(nTime));
+            cout<<"blue "<<WarriorFromBlue->names[WarriorFromBlue->kindNo]<<" "<<WarriorFromBlue->no<<" has "<<WarriorFromBlue->n_weapon[Sword]<<" sword "<<WarriorFromBlue->n_weapon[Bomb]<<" bomb "<<WarriorFromBlue->n_weapon[Arrow]<<" arrow and "<<WarriorFromBlue->hp<<" elements"<<endl;
+        }
+    }
+};
+ 
+Warrior::Warrior( Headquarter * p,int no_,int kindNo_,int ntime) {
+    no = no_;
+    kindNo = kindNo_;
+    pHeadquarter = p;
+    AttackValue=initialAttackValue[kindNo];
+    hp=initialLifeValue[kindNo];
+}
+ 
+
+
+
+void Warrior::PrintResult(int nTime)
+{
+    
+    string color =  pHeadquarter->GetColor();
+//    printf("%03d:%02d %s %s %d born with strength %d,%d %s in %s headquarter\n"    ,
+//           GetHour(nTime),GetMinute(nTime), color.c_str(), names[kindNo].c_str(), no, initialLifeValue[kindNo],
+//        pHeadquarter->warriorNum[kindNo],names[kindNo].c_str(),color.c_str());// string 在printf中输出的函数调用c_str()
+    printf("%03d:%02d %s %s %d born\n"    ,
+           GetHour(nTime),GetMinute(nTime), color.c_str(), names[kindNo].c_str(), no);// string 在printf中输出的函数调用c_str()
+    PrintOtherInf();
+}
+ 
+void Headquarter::Init(int color_, int lv)
+{
+    color = color_;
+    totalLifeValue = lv;
+    totalWarriorNum = 0;
+    stopped = false;
+    curMakingSeqIdx = 0;
+    for( int i = 0;i < WARRIOR_NUM;i++ )
+        warriorNum[i] = 0;
+}
+ 
+Headquarter::~Headquarter () {
+    //for( int i = 0;i < totalWarriorNum;i++ )
+       // delete pWarriors[i];
+}
+
+int Headquarter::Produce(int nTime, city & c)
+{
+//    int hour=GetHour(nTime);
+//    int minute=GetMinute(nTime);
+    if( stopped )
+        return 0;
+    if(Warrior::initialLifeValue[makingSeq[color][curMakingSeqIdx]] > totalLifeValue) {
+        stopped=1;
+        return 0;
+    }
+//    int searchingTimes = 0;
+//    while( Warrior::initialLifeValue[makingSeq[color][curMakingSeqIdx]] > totalLifeValue &&
+//        searchingTimes < WARRIOR_NUM ) {
+//        stopped = true;
+//        break;
+//        curMakingSeqIdx = ( curMakingSeqIdx + 1 ) % WARRIOR_NUM;
+//        searchingTimes++;
+//    }
+//    int kindNo = makingSeq[color][curMakingSeqIdx];
+//    if( Warrior::initialLifeValue[kindNo] > totalLifeValue ) {
+//        stopped = true;
+//        if( color == 0)
+//            printf("%03d:%02d red headquarter stops making warriors\n",hour,minute);
+//        else
+//            printf("%03d:%02d blue headquarter stops making warriors\n",hour,minute);
+//        return 0;
+//    }
+    //制作士兵：
+    int kindNo=makingSeq[color][curMakingSeqIdx];
+    totalLifeValue -= Warrior::initialLifeValue[kindNo];
+    curMakingSeqIdx = ( curMakingSeqIdx + 1 ) % WARRIOR_NUM;
+    switch(kindNo){
+        case Dragon:{
+            dragon* pd= new dragon( this,totalWarriorNum+1,kindNo,nTime);
+            pWarriors[totalWarriorNum] =pd;
+            if(color) c.WarriorFromBlue=pd;
+            else c.WarriorFromRed=pd;
+            warriorNum[kindNo]++;
+            pWarriors[totalWarriorNum]->PrintResult(nTime);
+            totalWarriorNum++;}break;
+        case Ninja:{
+            ninja* pd= new ninja( this,totalWarriorNum+1,kindNo,nTime);
+            pWarriors[totalWarriorNum] =pd;
+            if(color) c.WarriorFromBlue=pd;
+            else c.WarriorFromRed=pd;
+            warriorNum[kindNo]++;
+            pWarriors[totalWarriorNum]->PrintResult(nTime);
+            totalWarriorNum++;}break;
+        case Wolf:{
+            wolf* pd= new wolf( this,totalWarriorNum+1,kindNo,nTime);
+            pWarriors[totalWarriorNum] =pd;
+            if(color) c.WarriorFromBlue=pd;
+            else c.WarriorFromRed=pd;
+            warriorNum[kindNo]++;
+            pWarriors[totalWarriorNum]->PrintResult(nTime);
+            totalWarriorNum++;}break;
+        case Iceman:{
+            iceman* pd= new iceman( this,totalWarriorNum+1,kindNo,nTime);
+            pWarriors[totalWarriorNum] =pd;
+            if(color) c.WarriorFromBlue=pd;
+            else c.WarriorFromRed=pd;
+            warriorNum[kindNo]++;
+            pWarriors[totalWarriorNum]->PrintResult(nTime);
+            totalWarriorNum++;}break;
+        case Lion:{
+            lion* pd= new lion( this,totalWarriorNum+1,kindNo,nTime);
+            pWarriors[totalWarriorNum] =pd;
+            if(color) c.WarriorFromBlue=pd;
+            else c.WarriorFromRed=pd;
+            warriorNum[kindNo]++;
+            pWarriors[totalWarriorNum]->PrintResult(nTime);
+            totalWarriorNum++;}break;
+    }
+    
+    return 1;
+}
+ 
+string Headquarter::GetColor()
+{
+    if( color == 0)
+        return "red";
+    else
+        return "blue";
+}
+ 
+string Warrior::names[WARRIOR_NUM] = { "dragon","ninja","iceman","lion","wolf" };
+int Warrior::initialLifeValue [WARRIOR_NUM];
+int Warrior::initialAttackValue [WARRIOR_NUM];
+int Headquarter::makingSeq[2][WARRIOR_NUM] = { { 2,3,4,1,0 },{3,0,1,2,4} }; //两个司令部武士的制作顺序序列
+
+
+
+int main()
+{
+    Headquarter RedHead,BlueHead;
+    scanf("%d",&t);
+    int nCaseNo = 1;
+    int hour,minute;
+    while ( t-- ) {
+        bool EndGame=0;
+        city* cities=new city[25];
+        printf("Case %d:",nCaseNo++);
+        //scanf("%d",&m);
+        cin>>m>>n>>k>>time_limit;
+        for(int i=0;i<=n+1;i++){
+            cities[i].No=i;
+            //cout<<i<<" "<<cities[i].No<<endl;
+            cities[i].WarriorFromBlue=NULL;
+            cities[i].WarriorFromRed=NULL;
+            cities[i].temWarriorFromRed=NULL;
+        }
+
+        for( int i = 0;i < WARRIOR_NUM;i++ )
+        scanf("%d", & Warrior::initialLifeValue[i]);
+        for( int i = 0;i < WARRIOR_NUM;i++ )
+        scanf("%d", & Warrior::initialAttackValue[i]);
+        //for(int i=0;i<5;i++) cout<<Warrior::initialAttackValue[i]<<" ";
+        //cout<<Warrior::initialAttackValue[Wolf];
+        cout<<endl;
+        RedHead.Init(0,m);
+        BlueHead.Init(1,m);
+        nTime = 0;
+        while(true) {
+            if(StandardTimetoNormal(nTime)>time_limit) break;
+            minute=GetMinute(nTime);
+            hour=GetHour(nTime);
+            if(minute==0){//produce
+                RedHead.Produce(nTime,cities[0]);
+                BlueHead.Produce(nTime,cities[n+1]);
+            }
+            else if(minute==5){//lion run away
+                for(int i=0;i<=n+1;i++){
+                    if(cities[i].WarriorFromBlue||cities[i].WarriorFromRed )
+                    cities[i].NaughtyLion();
+                }
+            }
+            else if(minute==10){//move forwards
+                for(int i=0;i<=n+1;i++){
+                    if(i==0){
+                        if(cities[1].WarriorFromBlue!=NULL){
+                            cities[1].WarriorFromBlue->MarchOnEvent();
+                            EndGame=1;
+                            Warrior* p=cities[1].WarriorFromBlue;
+                            timeCout(hour, minute);
+                            cout<<"blue "<<p->names[p->kindNo]<<" "<<p->no<<" reached red headquarter with "<<p->hp<<" elements and force "<<p->AttackValue<<endl;
+                            cities[1].WarriorFromBlue=NULL;
+                            timeCout(hour, minute);
+                            cout<<"red headquarter was taken"<<endl;
+                        }
+                        if(cities[0].WarriorFromRed){
+                            cities[1].temWarriorFromRed=cities[0].WarriorFromRed;
+                            cities[0].WarriorFromRed=NULL;
+                        }
+                    }
+                    else if(i>=1&&i<=n){
+                        if(cities[i].temWarriorFromRed){
+                            cities[i].temWarriorFromRed->MarchOnEvent();
+                            Warrior* p=cities[i].temWarriorFromRed;
+                            timeCout(hour, minute);
+                            cout<<"red "<<p->names[p->kindNo]<<" "<<p->no<<" marched to city "<<i<<" with "<<p->hp<<" elements and force "<<p->AttackValue<<endl;
+                        }
+                        if(cities[i].WarriorFromRed){
+                            cities[i+1].temWarriorFromRed=cities[i].WarriorFromRed;
+                            cities[i].WarriorFromRed=NULL;
+                        }
+                        if(cities[i+1].WarriorFromBlue){
+                            cities[i].WarriorFromBlue=cities[i+1].WarriorFromBlue;
+                            cities[i+1].WarriorFromBlue=NULL;
+                            Warrior* p=cities[i].WarriorFromBlue;
+                            timeCout(hour, minute);
+                            //int ending=cities[i].WarriorFromBlue->MarchOnEvent();
+                            cities[i].WarriorFromBlue->MarchOnEvent();
+                            cout<<"blue "<<p->names[p->kindNo]<<" "<<p->no<<" marched to city "<<i<<" with "<<p->hp<<" elements and force "<<p->AttackValue<<endl;
+//                            if(ending){
+//                                delete cities[i].WarriorFromBlue;
+//                                cities[i].WarriorFromBlue=NULL;
+//                            };
+                        }
+                        if(cities[i].temWarriorFromRed){
+//                            if(cities[i].temWarriorFromRed->MarchOnEvent()){
+//                                delete cities[i].temWarriorFromRed;
+//                                cities[i].temWarriorFromRed=NULL;
+//                            }
+                            
+                           // else{
+                            
+                                cities[i].WarriorFromRed=cities[i].temWarriorFromRed;
+                                cities[i].temWarriorFromRed=NULL;
+                            //}
+                        }
+                    }
+                    else{
+                        if(cities[n+1].temWarriorFromRed!=NULL){
+                            cities[n+1].temWarriorFromRed->MarchOnEvent();
+                            EndGame=1;
+                            Warrior* p=cities[n+1].temWarriorFromRed;
+                            timeCout(hour, minute);
+                            cout<<"red "<<p->names[p->kindNo]<<" "<<p->no<<" reached blue headquarter with "<<p->hp<<" elements and force "<<p->AttackValue<<endl;
+                            timeCout(hour, minute);
+                            cout<<"blue headquarter was taken"<<endl;
+                        }
+                    }
+                }
+            }
+            else if(minute==35){//wolf rob
+                for(int i=1;i<=n;i++) cities[i].NaughtyWolf();
+            }
+            else if(minute==40){//fight
+                for(int i=1;i<=n;i++) cities[i].Fight();
+            }
+            else if(minute==50){//report m
+                timeCout(hour, minute);
+                cout<<RedHead.totalLifeValue<<" elements in red headquarter"<<endl;
+                timeCout(hour, minute);
+                cout<<BlueHead.totalLifeValue<<" elements in blue headquarter"<<endl;
+            }
+            else if(minute==55){//report weapons
+                for(int i=1;i<=n;i++) cities[i].ShowMeWhatYouveGot();
+            }
+            nTime++;
+            if(EndGame) break;
+        }
+        delete []cities;
+        //if(EndGame) break;
+    }
+    return 0;
+}
+//1
+//20 1 10 400
+//20 20 30 10 20
+//5 5 5 5 5
