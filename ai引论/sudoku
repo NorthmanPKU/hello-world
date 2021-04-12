@@ -1,0 +1,100 @@
+#include <iostream>
+#include <string>
+#include <cstring>
+using namespace std;
+
+int emptyx[82]={0};
+int emptyy[82]={0};
+char sudokustr[11][11];
+bool hang[11][11]={0};
+bool lie[11][11]={0};
+bool part[11][11]={0};
+int sudoku[11][11]={0};
+int Getn(int x,int y){
+    return (y+2)/3+((x-1)/3)*3;
+}
+
+bool avail(int x,int y,int n){
+//    for(int i=1;i<=9;i++){
+//        if(sudoku[i][y]==n){
+//            return 0;
+//        }
+//    }
+//    for(int i=1;i<=9;i++){
+//        if(sudoku[x][i]==n){
+//            return 0;
+//        }
+//    }
+//    int x0=GetX(x),y0=GetX(y);
+//    for(int i=x0;i<=x0+2;i++)
+//        for(int j=y0;j<=y0+2;j++)
+//            if(sudoku[i][j]==n) return 0;
+    if(hang[x][n]==0&&lie[y][n]==0&&part[Getn(x,y)][n]==0) return 1;
+    else return 0;
+}
+int  p=0;
+
+bool func(int depth){
+    if(depth==p) return 1;
+    int x0=emptyx[depth],y0=emptyy[depth];
+    for(int i=1;i<10;i++){
+        if(avail(emptyx[depth], emptyy[depth], i)){
+            sudoku[x0][y0]=i;
+            hang[x0][i]=1;
+            lie[y0][i]=1;
+            part[Getn(x0,y0)][i]=1;
+            if(func(depth+1)) return 1;
+            sudoku[x0][y0]=0;
+            hang[x0][i]=0;
+            lie[y0][i]=0;
+            part[Getn(x0,y0)][i]=0;
+        }
+    }
+    return 0;
+    
+}
+
+    
+int main(){
+    int n=0;
+    cin>>n;
+    while(n--){
+        for(int i=1;i<10;i++){
+            for(int j=1;j<10;j++){
+                part[i][j]=0;
+                lie[i][j]=0;
+                hang[i][j]=0;
+            }
+        }
+        p=0;
+       // cout<<233;
+    for(int i=1;i<=9;i++){
+        for (int j=1;j<=9;j++){
+            cin>>sudokustr[i][j];
+            sudoku[i][j]=sudokustr[i][j]-'0';
+            //cout<<"i="<<i<<" j="<<j<<" sudoku[i][j]="<<sudoku[i][j]<<endl;
+            if(sudoku[i][j]==0){
+                emptyx[p]=i;
+                emptyy[p++]=j;
+               // cout<<p<<endl;
+            }
+            else{
+                hang[i][sudoku[i][j]]=1;
+                lie[j][sudoku[i][j]]=1;
+                part[Getn(i,j)][sudoku[i][j]]=1;
+            }
+        }
+    }
+        //cout<<"finished";
+    if(func(0)){
+        for(int i=1;i<=9;i++){
+            for (int j=1;j<=9;j++){
+                cout<<sudoku[i][j];
+            }
+            cout<<endl;
+        }
+    }
+        else cout<<-1;}
+    
+    return 0;
+}
