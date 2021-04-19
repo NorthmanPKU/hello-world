@@ -1,0 +1,88 @@
+#include <iostream>
+#include<cstdio>
+#include<cmath>
+#include<cstring>
+#include<queue>
+#include<vector>
+#include<ctime>
+#include<functional>
+#include<algorithm>
+
+using namespace std;
+
+const double pi=acos(-1.0);
+const int INF=0x3f3f3f3f;
+int l=0,w=0,num=0;
+int point[1010][2]={0};
+double men[30][2]={0};
+double best[30]={0};
+
+double Rand(double a,double b){
+    return (rand()%10000/10000.0*(b-a)+a);
+}
+
+bool inMap(double x,double y){
+    return (x>=0&&x<=l)&&(y>=0&&y<=w);
+}
+
+double calcDis(double x,double y,double xx,double yy){
+    return sqrt((x-xx)*(x-xx)+(y-yy)*(y-yy));
+}
+
+double getMinDis(double x,double y,int n){
+    //double d=calcDis(x, y, point[0][0], point[0][1]);
+    double d=INF;
+    for(int i=0;i<n;i++) d=min(d,calcDis(x, y, point[i][0], point[i][1]));
+    return d;
+}
+
+int main(){
+    int n=0;
+    //cin>>n;
+    scanf("%d",&n);
+    while(n--){
+        cin>>l>>w>>num;
+        for(int i=0;i<num;i++) cin>>point[i][0]>>point[i][1];
+
+        srand(time(0));
+        for(int i=0;i<30;i++){
+            men[i][0]=Rand(1, l);
+            men[i][1]=Rand(1, w);
+            best[i]=INF;
+            best[i]=getMinDis(men[i][0], men[i][1], num);
+        }
+
+        //for(double t=max(l,w);t>=1e-3;t*=0.85){
+        double t=max(l,w);
+        while(t>1e-9){
+            for(int i=0;i<30;i++){
+                for(int j=0;j<30;j++){
+                    double ang=Rand(0, 2*pi);
+                    double nx=men[i][0]+t*cos(ang);
+                    double ny=men[i][1]+t*sin(ang);
+                    if(nx<0||ny<0||l<nx||w<ny) continue;
+                    
+                    
+                    
+
+                    double nd=getMinDis(nx, ny, num);
+                    if(nd>best[i]){
+                        best[i]=nd;
+                        men[i][0]=nx;
+                        men[i][1]=ny;
+                    }
+
+                }
+            }
+            t*=0.85;
+        }
+        int find=1;
+        for(int i=0;i<30;i++){
+            if(best[i]>=best[find]) find=i;
+        }
+        //cout<<fixed<<setprecision(1)<<"The safest point is ("<<men[find][0]<<","<<men[find][1]<<")."<<endl;
+        printf("The safest point is (%.1lf, %.1lf).\n", men[find][0], men[find][1]);
+    }
+    return 0;
+}
+
