@@ -1,0 +1,68 @@
+#include <iostream>
+#include<cstdio>
+#include<cmath>
+#include<cstring>
+#include<queue>
+#include<vector>
+#include<ctime>
+#include<functional>
+#include<algorithm>
+#include <iomanip>
+
+using namespace std;
+
+const double pi=acos(-1.0);
+const int INF=0x3f3f3f3f;
+int num=0;
+double point[50][3]={0};
+
+double calcDis(double x,double y ,double z,double xx, double yy, double zz){
+    return sqrt((x-xx)*(x-xx)+(y-yy)*(y-yy)+(z-zz)*(z-zz));
+}
+
+int main(){
+    
+    //cin>>n;
+    //scanf("%d",&n);
+    while(cin>>num){
+        if(num==0) break;
+        //cin>>l>>w>>num;
+        double sumx=0,sumy=0,sumz=0;
+        for(int i=0;i<num;i++){
+            cin>>point[i][0]>>point[i][1]>>point[i][2];
+            sumx+=point[i][0];
+            sumy+=point[i][1];
+            sumz+=point[i][2];
+        }
+        //double x=sumx/num,y=sumy/num,z=sumz/num;
+        double x=point[0][0],y=point[0][1],z=point[0][2];
+        //cout<<x<<" "<<y<<" "<<z<<endl;
+        //srand(time(0));
+        //cout<<"33";
+        double t=100;
+        double r=INF;
+        while(t>1e-5){
+            double maxd=0;
+            int maxid=0;
+            for(int i=0;i<num;i++){
+                double temd=calcDis(x, y, z, point[i][0], point[i][1], point[i][2]);
+                if(temd>maxd){
+                    maxd=temd;
+                    maxid=i;
+                }
+                //cout<<temd<<endl;
+            }
+            r=min(r,maxd);
+            //cout<<"here"<<endl;
+            x+=(point[maxid][0]-x)/maxd*t;
+            y+=(point[maxid][1]-y)/maxd*t;
+            z+=(point[maxid][2]-z)/maxd*t;
+            t*=0.98;
+        }
+
+        //cout<<fixed<<setprecision(5)<<r<<endl;
+        printf("%.5lf\n",r);
+
+    }
+    return 0;
+}
