@@ -1,0 +1,50 @@
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <list>
+#include <string>
+using namespace std;
+int main(){
+    int n=0;
+    list<int> l[10010];
+    string s;
+    cin>>n;
+    while(n--){
+        cin>>s;
+        if(s=="new"){
+            int num=0;
+            cin>>num;
+        }
+        else if(s=="add"){
+            int id=0,num=0;
+            cin>>id>>num;
+            l[id].push_back(num);
+        }
+        else if (s=="out"){
+            int id=0;
+            cin>>id;
+            l[id].sort();
+            list<int>::iterator p;
+            p=l[id].begin();
+            for(;p!=l[id].end();++p) cout<<*p<<" ";
+            cout<<endl;
+        }
+        else if(s=="merge"){
+            int id1=0,id2=0;
+            cin>>id1>>id2;
+            l[id1].merge(l[id2]);
+        }
+        else if(s=="merge"){
+            int id1=0,id2=0;
+            cin>>id1>>id2;
+            l[id1].merge(l[id2]);
+        }
+        else{
+            int id=0;
+            cin>>id;
+            l[id].sort();
+            l[id].unique();
+        }
+    }
+    return 0;
+}
