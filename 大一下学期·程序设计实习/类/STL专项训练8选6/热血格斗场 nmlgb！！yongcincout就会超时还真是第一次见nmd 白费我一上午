@@ -1,0 +1,73 @@
+#include<iostream>
+#include<algorithm>
+#include<list>
+#include<set>
+#include<map>
+
+using namespace std;
+
+map<int, int>members;
+int main(){
+    int n=0;
+    cin>>n;
+    //members.insert(pair<int,int>(1000000000,1));
+    members[1000000000]=1;
+    map<int,int>::iterator p;
+    while(n--){
+        int id, power;
+        cin>>id>>power;
+        //scanf("%d %d", &id, &power);
+        //pair<map<int, int>::iterator, bool> tem_p;
+        //tem_p=members.insert(pair<int, int>(power,id));
+        //members[power]=id;
+//        map<int, int>::iterator p=tem_p.first;
+//        if(tem_p.first==members.begin()) cout<<id<<" "<<(++p)->second<<endl;
+//        else if(tem_p.first==members.end()) cout<<id<<" "<<(--p)->second<<endl;
+//        else{
+//            //cout<<tem_p.first->second<<" ";
+//            int d1=tem_p.first->first-(--p)->first;
+//            int d2=(++(++p))->first-tem_p.first->first;
+//            //cout<<d1<<" "<<d2<<endl;
+//            if(d1>d2) cout<<id<<" "<<p->second<<endl;
+//            else if(d1<=d2) cout<<id<<" "<<(--(--p))->second<<endl;
+//        };
+        p=members.lower_bound(power);
+        if(p==members.begin()){
+            cout<<id<<" "<<p->second<<endl;
+        }
+        else if(p==members.end()){
+            --p;
+            cout<<id<<" "<<p->second<<endl;
+        }
+        else{
+            int p1,p12;
+            int p2,p22;
+            p1=p->first;
+            p12=p->second;
+            --p;
+            p2=p->first;
+            p22=p->second;
+//            int d1=p->first-power;
+//            p--;
+//            int d2=power-p->first;
+            if(p1-power<abs(power-p2)){
+                //cout<<id<<" "<<p12<<endl;
+                printf("%d %d\n", id, p12);
+            }
+            else{
+                //cout<<id<<" "<<p22<<endl;
+                printf("%d %d\n", id, p22);
+            }
+//            if(d1>=d2) cout<<id<<" "<<p->second<<endl;
+//
+//            else {
+//                p++;
+//                cout<<id<<" "<<p->second<<endl;
+//            }
+        }
+        members[power]=id;
+        
+    }
+
+    return 0;
+}
