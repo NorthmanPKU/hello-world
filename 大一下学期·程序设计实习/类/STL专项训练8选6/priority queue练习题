@@ -1,0 +1,84 @@
+#include<iostream>
+#include<algorithm>
+#include<list>
+#include<set>
+#include<map>
+#include <queue>
+bool p_tem[10000000]={0};
+int pnum[10000000]={0};
+using namespace std;
+int p[5000005]={0};
+int cnt=0;
+int countPrimeFactors(int x){
+    //cout<<cnt<<endl;
+    if(binary_search(p, p+cnt, x)) return 0;
+    //if(p_tem[x]==0) return 0;
+    int num=0;
+    for(int i=0;i<cnt&&p[i]<x;i++){
+        if(x%p[i]==0) num++;
+            //x/=p[i];
+           // i=-1;
+        
+    }
+    //cout<<num<<" ";
+    return num;
+}
+
+class myCompare1{
+public:
+    
+    bool operator()(pair<int, int> a,pair<int, int> b){
+//        int na,nb;
+//        if(pnum[a]) na=pnum[a];
+//        else na=countPrimeFactors(a);
+//        if(pnum[b]) nb=pnum[b];
+//        else nb=countPrimeFactors(b);
+        if(a.first==b.first) return a.second<b.second;
+        else return a.first<b.first;
+    }
+};
+class myCompare2{
+public:
+    bool operator()(pair<int, int> a,pair<int, int> b){
+        //        int na,nb;
+        //        if(pnum[a]) na=pnum[a];
+        //        else na=countPrimeFactors(a);
+        //        if(pnum[b]) nb=pnum[b];
+        //        else nb=countPrimeFactors(b);
+                if(a.first==b.first) return a.second>b.second;
+                else return a.first>b.first;
+            }
+};
+
+int main(){
+    for(int i=2;i<=5000000;i++){
+        if(!p_tem[i]){
+            p[cnt++]=i;
+                for(int j=i;;j++){
+                    if(i*j<=5000000&&i*j>0){
+                        //if(i>40000)
+                        p_tem[i*j]=1;}
+                    else break;
+                }
+            }
+    }
+    //cout<<countPrimeFactors(12332112);
+    int n=0;
+    cin>>n;
+    int tem=0;
+    priority_queue<pair<int, int>,vector<pair<int, int>>,myCompare1> my_queue1;
+    priority_queue<pair<int, int>,vector<pair<int, int>>,myCompare2> my_queue2;
+    while(n--){
+        for(int j=0;j<10;j++){
+            cin>>tem;
+            int ntem=countPrimeFactors(tem);
+            my_queue1.push(pair<int, int>(ntem,tem));
+            my_queue2.push(pair<int, int>(ntem,tem));
+        }
+        cout<<my_queue1.top().second<<" "<<my_queue2.top().second<<endl;
+        my_queue1.pop();
+        my_queue2.pop();
+        
+    }
+    return 0;
+}
