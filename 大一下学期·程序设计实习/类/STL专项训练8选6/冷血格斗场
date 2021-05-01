@@ -1,0 +1,55 @@
+#include<iostream>
+#include<algorithm>
+#include<list>
+#include<set>
+#include<map>
+
+using namespace std;
+
+map<int, int>members;
+int main(){
+    int n=0;
+    cin>>n;
+    members[1000000000]=1;
+    map<int,int>::iterator p;
+    while(n--){
+        int id, power;
+        //cin>>id>>power;
+        scanf("%d %d", &id, &power);
+        p=members.lower_bound(power);
+        if(p==members.begin()){
+            cout<<id<<" "<<p->second<<endl;
+        }
+        else if(p==members.end()){
+            --p;
+            cout<<id<<" "<<p->second<<endl;
+        }
+        else{
+            int p1,p12;
+            int p2,p22;
+            p1=p->first;
+            p12=p->second;
+            --p;
+            p2=p->first;
+            p22=p->second;
+            if(p1-power<abs(power-p2)){
+                //cout<<id<<" "<<p12<<endl;
+                printf("%d %d\n", id, p12);
+            }
+            else if(p1-power>abs(power-p2)){
+                //cout<<id<<" "<<p22<<endl;
+                printf("%d %d\n", id, p22);
+            }
+            else{
+                printf("%d %d\n", id, min(p12,p22));
+            }
+
+        }
+        
+        if(members.find(power)==members.end()){
+            members[power]=id;
+        }
+    else members[power]=min(id,members[power]);
+    }
+    return 0;
+}
