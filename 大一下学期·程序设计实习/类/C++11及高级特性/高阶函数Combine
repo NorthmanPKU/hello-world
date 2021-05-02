@@ -1,0 +1,41 @@
+#include <iostream>
+using namespace std;
+#include<functional>
+template<class t1,class t2,class t3>
+function<function<t3(t3)>(t1,t2)> combine=[](t1 f1,t2 f2){
+    function<t3(t3)> func=[=](t3 n){
+        return f1(f1(n)+f2(n));
+    };
+    return func;
+};
+int main()
+{
+    auto Square = [] (double a) { return a * a; };
+    auto Inc = [] (double a) { return a + 1; };
+    cout << combine<decltype(Square),decltype(Inc),int>(Square,Inc)(3) << endl;
+    cout << combine<decltype(Inc),decltype(Square),double>(Inc,Square)(2.5) << endl;
+
+    return 0;
+}
+-————————————-------————————————————-————————————------————————————------————————————————-——
+或
+————————————————————————————————————————————————————————————————————————————————————————————
+#include <iostream>
+using namespace std;
+#include<functional>
+template<class t1,class t2,class t3>
+auto combine=[](t1 f1,t2 f2){
+    auto func=[=](t3 n){
+        return f1(f1(n)+f2(n));
+    };
+    return func;
+};
+int main()
+{
+    auto Square = [] (double a) { return a * a; };
+    auto Inc = [] (double a) { return a + 1; };
+    cout << combine<decltype(Square),decltype(Inc),int>(Square,Inc)(3) << endl;
+    cout << combine<decltype(Inc),decltype(Square),double>(Inc,Square)(2.5) << endl;
+
+    return 0;
+}
