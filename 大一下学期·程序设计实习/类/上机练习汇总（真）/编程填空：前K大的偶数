@@ -1,0 +1,54 @@
+#include <algorithm>
+#include <iostream>
+#include <stack>
+#include <queue>
+#include <vector>
+#include <cstring>
+#include <cstdlib>
+#include <string>
+#include <map>
+#include <set>
+
+using namespace std;
+class MyQueue
+{
+public:
+    int k;
+    multiset<int,greater<int> > myq;
+    MyQueue(int kk):k(kk){};
+    friend istream & operator>>(istream & i, MyQueue & mq){
+        int n=0;
+        i>>n;
+        mq.myq.insert(n);
+        return i;
+    }
+    friend ostream & operator<<(ostream & o, MyQueue mq){
+        int cnt=0;
+        multiset<int,greater<int> >::iterator p=mq.myq.begin();
+        for(;cnt!=mq.k;p++) {
+            if(*p%2==0){
+                cnt++;
+                o<<*p<<" ";
+            }
+        }
+//        for(;p!=mq.myq.end();p++) cout<<*p<<" ";
+//        cout<<1;
+        //cout<<endl;
+        return o;
+    }
+};
+int main()
+{
+	int t;
+	cin >> t;
+	while(t--) {
+		int n, k;
+		cin >> n >> k;
+		MyQueue q(k);
+		for (int i = 0; i < n; ++i)
+			cin >> q;
+		cout<<q;
+		cout << endl;
+	}
+	return 0; 
+}
