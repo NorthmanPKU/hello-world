@@ -1,0 +1,87 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+template <int bitNum>
+struct MyBitset
+{
+    char a[bitNum/8+1];
+    MyBitset() { memset(a,0,sizeof(a));};
+    void Set(int i,int v) {
+        char & c = a[i/8];
+        int bp = i % 8;
+        if( v )
+            c |= (1 << bp);
+        else
+            c &= ~(1 << bp);
+    }
+// 在此处补充你的代码
+    class bit{
+    public:
+        char * c;
+        //MyBitset *p;
+        int k;
+
+        bit(MyBitset & x,int num):k(num),c(&(x.a[num/8])){};
+        bit operator=(int x){
+            //int v=(x>>k)&1;
+            if( x )
+                *c |= (1 << k%8);
+            else
+                *c &= ~(1 << k%8);
+            return *this;
+        }
+        bit operator=(bit x){
+            int tmp=((*x.c)>>x.k%8)&1;
+            if(tmp)
+                *c|=1<<(k%8);
+            else
+                *c&=~(1<<(k%8));
+            return *this;
+        }
+    };
+    friend ostream & operator<<(ostream & o,bit x){
+        int v=(*(x.c)>>x.k%8)&1;
+        o<<v;
+        return o;
+    }
+    
+    bit operator[](int k){
+        //mybit.c=a[k/8];
+        //mybit.k=k;
+        return bit(*this,k);
+    }
+
+void Print() {
+        for(int i = 0;i < bitNum; ++i)
+            cout << (*this) [i];
+        cout << endl;
+    }
+
+};
+
+int main()
+{
+    int n;
+    int i,j,k,v;
+    while( cin >>  n) {
+        MyBitset<20> bs;
+        for(int i = 0;i < n; ++i) {
+            int t;
+            cin >> t;
+            bs.Set(t,1);
+        }
+        bs.Print();
+        cin >> i >> j >> k >> v;
+        bs[k] = v;
+        bs[i] = bs[j] = bs[k];
+        bs.Print();
+        cin >> i >> j >> k >> v;
+        bs[k] = v;
+        (bs[i] = bs[j]) = bs[k];
+        bs.Print();
+    }
+    return 0;
+}
+
+//复习草纸：
+
