@@ -1,0 +1,57 @@
+#include <iostream>
+
+using namespace std;
+
+void doit(string & s,int i,int l){
+    if(s[i]=='0') s[i]='1';
+    else s[i]='0';
+    if(i!=l-1){
+        if(s[i+1]=='0') s[i+1]='1';
+        else s[i+1]='0';
+    }
+    if(i!=0){
+        if(s[i-1]=='0') s[i-1]='1';
+        else s[i-1]='0';
+    }
+}
+
+int main()
+{
+    string s1;
+    string s2;
+    cin>>s1>>s2;
+    string tem=s1;
+    int opermin=0;
+    int temmin=0;
+    int l=s1.length();
+    for(int i=1;i<l;i++){
+        if(tem[i-1]!=s2[i-1]) {
+           // cout<<"i="<<i<<endl;
+            doit(tem,i,l);
+            //cout<<tem<<endl;
+            temmin++;
+           // cout<<"temmin="<<temmin<<endl;
+        }
+    }
+    //temmin=0;
+   // cout<<"tem:"<<tem<<endl;
+    if(tem[l-1]!=s2[l-1]) temmin=0x3f3f3f3f;
+    string tem2=s1;
+    doit(tem2, 0,l);
+   // cout<<tem2<<endl;
+    opermin++;
+    for(int i=1;i<l;i++){
+        if(tem2[i-1]!=s2[i-1]) {
+            doit(tem2, i,l);
+         //   cout<<tem2<<endl;
+            opermin++;
+        }
+    }
+    //cout<<"tem:2"<<tem2<<endl;
+    if(tem2[l-1]!=s2[l-1]) opermin=0x3f3f3f3f;
+    opermin=min(opermin,temmin);
+    if(opermin==temmin&&temmin==0x3f3f3f3f) cout<<"impossible";
+    else cout<<opermin;
+
+    return 0;
+}
