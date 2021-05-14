@@ -1,0 +1,91 @@
+#include<iostream>
+#include<memory.h>
+
+using namespace std;
+int walls[16]={0};
+int temwalls[16]={0};
+int timesinall=0;
+void print(int & n,int num,bool c){//1 y   0 w
+    if(c) n|=(1<<num);
+    else n&=~(1<<num);
+}
+
+void init_wall(string s,int & wall,int num){
+    for(int i=0;i<num;i++){
+        if(s[i]=='y') print(wall,num-i-1,1);
+    }
+}
+
+void realprint(int sit,int depth,int num){
+   // cout<<"realprint:"<<endl;
+    for(int i=0;i<num;i++){
+        //cout<<"  i="<<i<<endl;
+        if(((sit>>i)&1)==0){
+            //cout<<"在位置"<<i<<"涂抹"<<endl;
+            timesinall++;
+            for(int j=i+1;j>=i-1;j--){
+               // cout<<"    j="<<j<<endl;
+                if(j<num&&j>=0) temwalls[depth]^=(1<<j);
+            }
+            if(depth!=num-1) temwalls[depth+1]^=(1<<i);
+        }
+    }
+   // cout<<"realprint end."<<endl;
+}
+
+int num=0;
+bool okay(int x){
+    int std=0;
+    for(int i=0;i<num;i++) std|=(1<<i);
+    if(((x^std)&std)==0) return 1;
+    else return 0;
+}
+
+void myprint(int *p){
+    for(int i=0;i<num;i++){
+        for(int j=num-1;j>=0;j--){
+            if((p[i]>>j)&1) cout<<1;
+            else cout<<0;
+        }
+        cout<<endl;
+    }
+}
+
+int main(){
+    //cout<<"start"<<endl;
+    cin>>num;
+    //cout<<"here"<<endl;
+    int minnum=0x3f3f3f3f;
+    for(int i=0;i<num;i++){
+        string inwalls;
+        cin>>inwalls;
+        init_wall(inwalls,walls[i],num);
+       // cout<<num<<endl;
+    }
+    //myprint(walls);
+    //cout<<"yeah"<<endl;
+    int tot=1;
+    for(int i=0;i<num;i++) tot*=2;
+    //cout<<"haoyea"<<endl;
+    for(int sit=0;sit<tot;sit++){
+        //cout<<"sit=="<<sit<<endl;
+        timesinall=0;
+        memcpy(temwalls,walls,sizeof(walls));
+        //cout<<"im here"<<endl;
+        realprint(sit,0,num);
+        //cout<<"bitch"<<endl;
+        for(int i=1;i<num;i++) realprint(temwalls[i-1],i,num);
+        //cout<<"asshole"<<endl;
+       // if(minnum)
+        if(okay(temwalls[num-1])) minnum=min(minnum,timesinall);
+        //if(timesinall==14)
+        //myprint(temwalls);
+        //cout<<"这种情况";
+        //if(okay(temwalls[num-1])) cout<<"行"<<endl;
+        //else cout<<"不太行"<<endl;
+    }
+    if(minnum<0x3f3f3f3f) cout<<minnum;
+    else cout<<"inf";
+
+    return 0;
+}
