@@ -1,0 +1,111 @@
+#include <iostream>
+#include <memory.h>
+using namespace std;
+char sentence[120];
+int n=0;
+int l=0;
+
+void myget(){
+
+    while(cin.peek()==' '){
+       cin.get();
+        //cin.peek();
+    }
+
+}
+
+bool exp();
+bool getv(){
+    //cout<<"getv"<<endl;
+    //while(1){
+        //if(sentence[n]==' ') n++;
+        myget();
+    char c=cin.peek();
+        if(c=='V'){
+            //n++;
+            cin.get();
+            return 1;
+        }
+        else if(c=='F'){
+            //n++;
+            cin.get();
+            return 0;
+        }
+        else if(c=='!'){
+            //n++;
+            cin.get();
+            return !getv();
+        }
+        else{
+            //n++;
+            cin.get();
+            bool ans;
+            ans=exp();
+            cin.get();
+            return ans;
+        }
+
+    //}
+}
+
+bool factor(){
+    //cout<<"factor"<<endl;
+    bool v=getv();
+
+    char c=cin.peek();
+    while(1){
+        myget();
+        c=cin.peek();
+        if(c==EOF||c=='\n') break;
+
+        if(c=='&'){
+            //n++;
+            cin.get();
+            v=getv()&&v;
+        }
+        else break;
+    }
+    return v;
+}
+
+bool exp(){
+    //cout<<"exp"<<endl;
+    bool v=factor();
+
+    while(1){
+        myget();
+        char c=cin.peek();
+//        if(c==EOF||c=='\n') break;
+//        if(c==' '||c==')') break;
+        if(c=='|'){
+            cin.get();
+            v=factor()||v;
+        }
+        else{
+            //cout<<"this is the ghost:"<<c<<endl;
+            break;}
+    }
+    return v;
+}
+
+int main()
+{
+    int i=0;
+    //int end=1;
+    do{
+        //cin.get(sentence, 120);
+
+        //if(sentence[0]==EOF) break;
+        //n=0;
+        //l=strlen(sentence);
+        i++;
+        bool ans=exp();
+        cout<<"Expression "<<i<<": ";
+        if(ans) cout<<"V"<<endl;
+        else cout<<"F"<<endl;
+        cin.get();
+        //memset(sentence, 0, sizeof(sentence));
+    }while (cin.peek()!=EOF);
+
+    return 0;
+}
