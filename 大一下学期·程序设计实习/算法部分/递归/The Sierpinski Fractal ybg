@@ -1,0 +1,51 @@
+#include <iostream>
+#include <memory.h>
+#include<algorithm>
+#include <cmath>
+using namespace std;
+
+char p[1200][12000];
+
+int pow(int d,int s){
+    int ans=d;
+    for(int i=1;i<s;i++){
+        ans*=d;
+    }
+    return ans;
+}
+
+void func(int shape,int loc,int level){
+    if(shape==1){
+        p[level][loc+1]='/';
+        p[level][loc+2]='\\';
+        p[level+1][loc]='/';
+        p[level+1][loc+1]='_';
+        p[level+1][loc+2]='_';
+        p[level+1][loc+3]='\\';
+        return;
+    }
+    func(shape-1, loc+pow(2,shape)/2,level);
+    func(shape-1, loc, level+pow(2,shape)/2);
+    func(shape-1, loc+pow(2,shape), level+pow(2,shape)/2);
+    return;
+}
+
+int main()
+{
+    int n;
+    while (cin>>n) {
+        if(n==0) break;
+        for(int i=0;i<pow(2,n);i++){
+            for(int j=0;j<pow(2,n)+i+1;j++) p[i][j]=' ';
+        }
+        //for(int i=0;i<n;i++) p[i]=new char[2*n+1];
+        func(n, 0, 0);
+        for(int i=0;i<pow(2,n);i++){
+            for(int j=0;j<pow(2,n)+i+1;j++) cout<<p[i][j];
+            cout<<endl;
+        }
+        cout<<endl;
+        memset(p, 0, sizeof(p));
+    }
+    return 0;
+}
