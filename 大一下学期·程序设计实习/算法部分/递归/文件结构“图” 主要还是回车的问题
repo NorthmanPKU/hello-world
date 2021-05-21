@@ -1,0 +1,61 @@
+#include <iostream>
+#include <memory.h>
+#include<algorithm>
+using namespace std;
+
+void suojin(int n){
+    while(n--){
+        cout<<"|     ";
+    }
+}
+
+void func(int n){
+    string s;
+    string files[40];
+    int filenum=0;
+    while(1){
+//        cout<<"filenum=="<<filenum<<endl;
+//        for(int i=0;i<filenum;i++) cout<<files[i]<<" ";
+//        cout<<endl;
+        cin>>s;
+        //cout<<"我输入的是"<<s<<endl;
+        if(s[0]=='d'){
+            suojin(n+1);
+            cout<<s<<endl;
+            func(n+1);
+        }
+        else if(s[0]==']'||s[0]=='*'){
+            sort(files, files+filenum);
+            for(int i=0;i<filenum;i++){
+                //cout<<filenum<<endl;
+                suojin(n);
+                cout<<files[i]<<endl;
+            }
+            return;
+        }
+        //else if(s[0]=='*') return;
+        else files[filenum++]=s;
+    }
+    return;
+}
+
+int main()
+{
+    int i=1;
+    char c;
+    while (1) {
+        
+        cout<<"DATA SET "<<i<<":"<<endl;
+        cout<<"ROOT"<<endl;
+        
+        func(0);
+        
+        i++;
+        c=cin.get();
+        c=cin.peek();
+        if(c=='#') break;
+        cout<<endl;
+    }
+
+    return 0;
+}
