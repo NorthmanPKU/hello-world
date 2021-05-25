@@ -1,0 +1,47 @@
+#include<iostream>
+#include<algorithm>
+
+using namespace std;
+
+int longest[110][110]={0};
+int maap[110][110]={0};
+int ans=0;
+int moved[4][2]={-1,0,0,1,1,0,0,-1};
+
+int hang,lie;
+int seek(int h,int l){
+    if(h==0||l==0||h==hang+1||l==lie+1) return 0;
+    if(longest[h][l]) return longest[h][l];
+    int temlongest=0;
+    for(int i=0;i<4;i++){
+        if(maap[h+moved[i][0]][l+moved[i][1]]<maap[h][l])
+        temlongest=max(temlongest,seek(h+moved[i][0],l+moved[i][1]));
+    }
+    ans=max(ans,temlongest+1);
+    longest[h][l]=temlongest+1;
+    return temlongest+1;
+
+}
+
+int main(){
+    //cout<<"homework fuckyou"<<endl;
+
+    cin>>hang>>lie;
+    for(int i=1;i<=hang;i++)
+        for(int j=1;j<=lie;j++){
+            cin>>maap[i][j];
+        }
+    for(int i=1;i<=hang;i++)
+        for(int j=1;j<=lie;j++){
+            seek(i,j);
+        }
+    // for(int i=1;i<=hang;i++){
+    //     for(int j=1;j<=lie;j++){
+    //         cout<<longest[i][j]<<" ";
+    //     }
+    //     cout<<endl;
+    // }
+    cout<<ans;
+
+    return 0;
+}
