@@ -1,0 +1,50 @@
+#include<iostream>
+#include<algorithm>
+#include<memory.h>
+
+using namespace std;
+
+
+int a[110];
+int ans[110];
+int main(){
+    
+    int n=0;
+    
+    cin>>n;
+    while(n--){
+        int l1=0,l2=0;
+        int m=0;
+        memset(ans, 0, sizeof(ans));
+        memset(a, 0, sizeof(a));
+        cin>>m;
+        for(int i=0;i<m;i++){
+            cin>>a[i];
+            ans[i]=1;
+        }
+        for(int i=0;i<m;i++)
+            for(int j=0;j<i;j++){
+                if(a[j]<a[i]){
+                    ans[i]=max(ans[j]+1,ans[i]);
+                    l1=max(ans[i],l1);
+                }
+            }
+        //l1=ans[m-1];
+        for(int i=0;i<m;i++){
+            ans[i]=1;
+        }
+        for(int i=m-1;i>=0;i--)
+            for(int j=m-1;j>i;j--){
+                if(a[j]<a[i]){
+                    ans[i]=max(ans[j]+1,ans[i]);
+                    l2=max(ans[i],l2);
+                }
+            }
+        //l2=ans[0];
+        //cout<<l1<<" "<<l2<<endl;
+        cout<<max(l1,l2)<<endl;
+    }
+    
+    
+    return 0;
+}
