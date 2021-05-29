@@ -1,0 +1,31 @@
+#include<iostream>
+#include<algorithm>
+
+using namespace std;
+
+long a[250][130]={0};
+
+int main(){
+
+    long n=0;
+    cin>>n;
+    while(n!=0){
+        for(long i=0;i<250;i++){
+            for(long j=0;j<130;j++){
+                if(i==0) a[i][j]=1;
+                else if(j>i) a[i][j]=0;
+                else a[i][j]=1;
+            }
+        }
+        if(n==0) break;
+        for(long i=2;i<=n;i++){
+            for(long j=i/2;j>=1;j--){
+                a[i][j]=a[i-j*2][j]+a[i][j+1];
+            }
+        }
+        cout<<n<<" "<<a[n][1]<<endl;
+        cin>>n;
+    }
+        
+    return 0;
+}
