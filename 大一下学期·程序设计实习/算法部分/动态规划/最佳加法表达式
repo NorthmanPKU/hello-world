@@ -1,0 +1,155 @@
+#include<iostream>
+#include<algorithm>
+
+using namespace std;
+
+int Input[60]={0};
+class myint;
+
+class myint{
+public:
+    int length;
+    int a[60];
+    myint():length(0){
+        for(int i=0;i<60;i++) a[i]=0;
+    }
+    myint(int _l):length(_l){
+        for(int i=0;i<60;i++) a[i]=0;
+    }
+    myint(int s,int e){
+//        cout<<"使用se方式生成对象——————————————————————————"<<endl;
+        length=e-s+1;
+        for(int i=59;i>=0;i--){
+            if(i>length-1) a[i]=0;
+            else
+            a[i]=Input[e-i];
+//            cout<<"第"<<length-i<<"位是"<<a[i]<<endl;
+            
+        }
+//        cout<<"end——————————————————————————"<<endl;
+    }
+    void init(){
+        
+        for(int i=0;i<length;i++) a[i]=0;
+        length=0;
+    }
+    friend int compare(myint x,myint y){
+        if(x.length>y.length) return 1;
+        else if(x.length<y.length) return -1;
+        else{
+            for(int i=x.length-1;i>=0;i--){
+                if(x.a[i]>y.a[i]) return 1;
+                else if(x.a[i]<y.a[i]) return -1;
+            }
+            return 0;
+        }
+    }
+
+    myint operator+(myint x){
+//        cout<<"加法开始____________________________"<<endl;
+        int jw=0;
+        int ml=max(x.length,length);
+        myint ans;
+        for(int i=0;i<ml;i++){
+//            cout<<"正在计算第"<<i+1<<"位"<<endl;
+            int temjw=jw;
+            ans.a[i]=(a[i]+x.a[i]+temjw)%10;
+//            cout<<"这里留下"<<ans.a[i]<<endl;
+//            cout<<"a[i]=="<<a[i]<<" x.a[i]=="<<x.a[i]<<" temjw=="<<temjw<<endl;
+            jw=(a[i]+x.a[i]+temjw)/10;
+//            cout<<"进位="<<jw<<endl;
+        }
+        if(jw){
+            ans.length=ml+1;
+            ans.a[ml]=1;
+        }
+        
+        else ans.length=ml;
+//        cout<<"加法结束____________________________"<<endl;
+        return ans;
+    }
+
+    friend ostream & operator<<(ostream & o, myint x){
+        for(int i=x.length-1;i>=0;i--) o<<x.a[i];
+        return o;
+    }
+
+    friend myint maxvalue(myint a,myint b){
+        if(compare(a,b)==1) return a;
+        else return b;
+    }
+    friend myint minvalue(myint a,myint b){
+        if(compare(a,b)==-1) return a;
+        else return b;
+    }
+
+
+};
+myint num[55][55];
+myint answers[55][55];
+myint getnum(int s,int e){
+    if(num[s][e].length>0){
+        
+        return num[s][e];
+        
+    }
+    else {
+        num[s][e]=myint(s,e);
+//        cout<<s<<"位到"<<e<<"位之间是"<<num[s][e]<<endl;
+    }
+    return num[s][e];
+}
+
+myint func(int n, int m){
+    if(answers[n][m].length) return answers[n][m];
+    if(n-1<m) return myint(55);
+    if(m==0) return myint(0,n-1);
+    myint ans(55);
+    for(int i=1;i<=n-1;i++){
+        if(n-i-1<m-1) break;
+        myint temans;
+//        cout<<"getnum得到后"<<i<<" "<<getnum(n-i,n-1)<<endl;
+//        cout<<"func得到前"<<n-i<<"个数字中放入"<<m-1<<"加号 "<<func(n-i,m-1)<<endl;
+//        cout<<"开始计算"<<getnum(n-i,n-1)<<"与"<<func(n-i,m-1)<<"的和:"<<endl;
+        temans=getnum(n-i,n-1)+func(n-i,m-1);
+        
+//        cout<<"在前"<<n-i<<"个数字中放入"<<m-1<<"加号 "<<"temans=="<<temans<<endl;
+        if(compare(temans,ans)==-1) ans=temans;
+    }
+    answers[n][m]=ans;
+    return ans;
+
+}
+
+
+int main(){
+    int n;
+    string s;
+    while(cin>>n){
+        cin>>s;
+        for(int i=0;i<s.length();i++){
+            Input[i]=s[i]-'0';
+        }
+//        cout<<s<<endl;
+//        for(int i=0;i<s.length();i++){
+//            cout<<Input[i];
+//        }
+//        cout<<endl;
+//        myint aa(0,3);
+//        myint b(4,6);
+//        cout<<aa+b;
+//        cout<<"**********************"<<endl;
+        cout<<func(s.length(),n)<<endl;
+        for(int i=0;i<55;i++){
+            for(int j=0;j<55;j++){
+                num[i][j].init();
+                answers[i][j].init();
+            }
+        }
+
+    }
+
+    
+
+    return 0;
+}
