@@ -1,0 +1,59 @@
+#include <iostream>
+#include <iomanip>
+#include <vector>
+using namespace std;
+
+int mintime[20][(1<<15)+1]={0};
+int timetable[20][20]={0};
+int n=0;
+int came[20]={0};
+long long camecities=0;
+void addcity(int n){
+    camecities|=(1<<n);
+    //return camecities;
+}
+void delcity(int n){
+    camecities&=~(1<<n);
+    //return camecities;
+}
+bool hadgone(int n){
+    return camecities&(1<n);
+}
+int ans=0;
+void dfs(int pos,int time,int total){
+    
+    if(mintime[pos][camecities]&&mintime[pos][camecities]<=time) return;
+    if(pos==n-1){
+        if(total<n-1) return;
+        //mintime[n-1]=mintime[n-1]==0?time:min(mintime[n-1],time);
+        ans=(ans==0)?time:min(ans,time);
+        return;
+    }
+    else{
+        mintime[pos][camecities]=time;
+        addcity(pos);
+        came[pos]=1;
+        for(int i=0;i<n;i++){
+            if(came[i]==0){
+                dfs(i,time+timetable[pos][i],total+1);
+            }
+        }
+        came[pos]=0;
+        delcity(pos);
+    }
+    return;
+    
+}
+
+int main()
+{
+    cin>>n;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<n;j++) cin>>timetable[i][j];
+    }
+    dfs(0,0,0);
+    //for(int i=0;i<n;i++)
+    //cout<<mintime[i]<<" "<<endl;
+    cout<<ans;
+    return 0;
+}
