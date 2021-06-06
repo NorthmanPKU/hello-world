@@ -1,0 +1,57 @@
+#include<iostream>
+#include<string.h>
+#include<string>
+using namespace std;
+const int MAX=1<<15;
+int sumtimes[MAX];
+string names[16];
+int ddls[16];
+int times[16];
+int dp[MAX];
+string ans[MAX];
+
+int calc(int day,int ddl){
+    return day<ddl?0:day-ddl;
+}
+
+int main()
+{
+   int n;
+   cin>>n;
+   while(n--){
+       int N;
+       cin>>N;
+       for(int i=0;i<N;++i){
+           cin>>names[i]>>ddls[i]>>times[i];
+           //sumtimes[1<<i]=times[i];
+
+       }
+       int curMax=1<<N;
+       for(int i=1;i<curMax;++i){
+           for(int j=0;j<N;++j){
+               if(i&(1<<j)){
+                   sumtimes[i]=sumtimes[i^(1<<j)]+times[j];
+                   break;
+               }
+           }
+       }
+       for(int i=0;i<curMax;++i) ans[i]="";
+       dp[0]=0;
+       for(int i=1;i<curMax;++i){
+           for(int j=0;j<N;++j){
+               if(i&(1<<j)){
+                   int tmpdp=dp[i^(1<<j)]+calc(sumtimes[i],ddls[j]);
+                   if(ans[i]==""||tmpdp<dp[i]||(tmpdp==dp[i]&&(ans[i^(1<<j)]+names[j]+"\n")<ans[i])){
+                       ans[i]=ans[i^(1<<j)]+names[j]+"\n";
+                       dp[i]=tmpdp;
+                   }
+               }
+           }
+       }
+       cout<<dp[curMax-1]<<endl;
+       cout<<ans[curMax-1];
+
+
+   }
+    return 0;
+}
