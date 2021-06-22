@@ -1,0 +1,108 @@
+#include<iostream>
+#include<cstdio>
+#include<queue>
+#include<vector>
+#include<cctype>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+int h0,l0,h1,l1;
+int n,k;
+int vis[110][110][6];
+char Map[110][110];
+int snakeinput=0;
+
+bool inmap(int h,int y){
+	return h>=0&&h<=n-1&&y>=0&&y<=n-1;
+}
+
+int ds[4][2]={0,-1,1,0,0,1,-1,0};
+
+struct node{
+	int h,y,time,snake,key;
+	node(int h_,int y_,int s_,int t_,int k_):h(h_),y(y_),snake(s_),time(t_),key(k_){}
+	bool operator < (const node hh)const {
+		return time>hh.time;
+	}
+};
+
+int bfs(int h0,int l0){
+	priority_queue<node> world;
+	world.push(node(h0,l0,0,0,0));
+	vis[h0][l0][0]=1;
+	while(!world.empty()){
+		//node cur=world.top();
+		int h=world.top().h,y=world.top().y,time=world.top().time,snake=world.top().snake,key=world.top().key;
+		world.pop();
+		//cout<<h<<y<<time<<snake<<key<<endl;
+		//cout<<"("<<h<<","<<y<<")"<<" "<<time<<endl;
+		//cout<<"h1="<<h1<<" h2="<<l1<<endl;
+		if(h==h1&&y==l1&&key==k) return time;
+		//cout<<"hahahaha"<<endl;
+		for(int d=0;d<4;d++){
+			int dh=ds[d][0];
+			int dy=ds[d][1];
+			int ch=h+dh;
+			int cy=y+dy;
+			if(inmap(ch, cy)&&Map[ch][cy]!='#'){
+				//cout<<"in loop("<<ch<<","<<cy<<")"<<" "<<time<<endl;
+				char cc=Map[ch][cy];
+				if(isalpha(Map[ch][cy])){//有蛇出没
+					bool killed=(1<<(cc-'A'))&snake;
+					if(killed&&!vis[ch][cy][key]){
+						world.push(node(ch,cy,snake,time+1,key));
+						vis[ch][cy][key]=1;
+					}
+					else if(!killed&&!vis[ch][cy][key]){
+						world.push(node(ch,cy,snake+(1<<(cc-'A')),time+2,key));
+						vis[ch][cy][key]=1;
+					}
+				}
+				else{
+//					if(cc=='.'&&!vis[ch][cy][key]){
+//						vis[ch][cy][key]=1;
+//						world.push(node(ch,cy,snake,time+1,key));
+//					}
+//					else if(isdigit(Map[ch][cy])){
+						if(!vis[ch][cy][key]){
+							vis[ch][cy][key]=1;
+							world.push(node(ch,cy,snake,time+1,key));
+						}
+
+			//if (cc-'0'==key+1&&!vis[ch][cy][key+1]) {
+					if(isdigit(cc)&&cc-'0'==key+1&&!vis[ch][cy][key+1]){
+							vis[ch][cy][key+1]=1;
+							world.push(node(ch,cy,snake,time+1,key+1));
+						}
+					//}
+				}
+			}
+		}
+
+	}
+	return -1;
+}
+
+
+int main(){
+	while(cin>>n>>k){
+		if(n==0) break;
+		snakeinput=0;
+		memset(Map, 0, sizeof(Map));
+		memset(vis, 0, sizeof(vis));
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+
+				cin>>Map[i][j];
+				if(Map[i][j]=='K') h0=i,l0=j,Map[i][j]='.';
+				else if(Map[i][j]=='S') Map[i][j]='A'+snakeinput++;
+				else if(Map[i][j]=='T') h1=i,l1=j,Map[i][j]='.';
+			}
+		}
+		int time=bfs(h0,l0);
+		//cout<<"time="<<time<<endl;
+		if(time==-1) cout<<"impossible"<<endl;
+		else cout<<time<<endl;
+	}
+	return 0;
+}
