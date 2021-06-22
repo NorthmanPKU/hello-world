@@ -1,0 +1,61 @@
+#include<iostream>
+#include<cstdio>
+#include<queue>
+#include<vector>
+#include<cctype>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+
+int pass[6][6]={0};
+int mapp[6][6]={0};
+
+struct node{
+	int x,y;
+	node(int xx,int yy):x(xx),y(yy){};
+	node(){};
+}pre[6][6];
+
+int d[4][2]={0,1,0,-1,1,0,-1,0};
+
+void bfs(){
+	queue<node> way;
+	way.push(node(4,4));
+	while(!way.empty()){
+		int x=way.front().x;
+		int y=way.front().y;
+		if(x==0&&y==0){
+			return;
+		}
+		node tem=way.front();
+		way.pop();
+		for(int i=0;i<4;i++){
+			int cx=x+d[i][0];
+			int cy=y+d[i][1];
+			if(pass[cx][cy]||mapp[cx][cy]==1||cx<0||cx>=5||cy<0||cy>=5) continue;
+			pass[cx][cy]=1;
+			pre[cx][cy]=tem;
+			way.push(node(cx,cy));
+		}
+	}
+}
+
+void myprint(node t){
+	if(t.x==4&&t.y==4){
+		cout<<"("<<4<<", "<<4<<")"<<endl;
+	}
+	else{
+		cout<<"("<<t.x<<", "<<t.y<<")"<<endl;
+		myprint(pre[t.x][t.y]);
+	}
+}
+
+int main(){
+	for(int i=0;i<5;i++)
+		for(int j=0;j<5;j++) cin>>mapp[i][j];
+	bfs();
+	myprint(node(0,0));
+	
+	return 0;
+}
+
