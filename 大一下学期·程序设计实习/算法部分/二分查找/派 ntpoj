@@ -1,0 +1,52 @@
+#include<iostream>
+#include<cstdio>
+#include<iomanip>
+#include<queue>
+#include<vector>
+#include<cctype>
+#include<cstring>
+#include<algorithm>
+#include<cmath>
+using namespace std;
+int d=0,n=0,sum=0,maxh=0;
+int ds[10010]={0};
+double ss[10010]={0};
+double maxs=0;
+
+bool isanswer(double f){
+	int cnt=0;
+	for(int i=0;i<d;i++){
+		cnt+=ss[i]/f;
+		//cout<<"cnt="<<cnt<<endl;
+		if(cnt>=n) return 1;
+	}
+	return 0;
+}
+
+int main(){
+	cin>>d>>n;
+	n++;
+	for(int i=0;i<d;i++){
+		cin>>ds[i];
+		ss[i]=(double)ds[i]*ds[i]*acos(-1);
+		
+		//sum+=ds[i];
+		if(ss[i]>maxs) maxs=ss[i];
+	}
+	//double ans=0x3f3f3f3f;
+	double left=0;
+	//double right=(double)sum/n;
+	double right=maxs;
+	double mid=0;
+	while(right-left>1e-5){
+		//cout<<"("<<left<<" "<<right<<")"<<endl;
+		mid=(left+right)/2.0;
+		if(!isanswer(mid)){
+			right=mid;
+		}else{
+			left=mid;
+		}
+	}
+	cout<<fixed<<setprecision(3)<<left;
+	return 0;
+}
