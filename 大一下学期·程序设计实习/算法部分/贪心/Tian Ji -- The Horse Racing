@@ -1,0 +1,62 @@
+#include<iostream>
+#include<cstdio>
+#include<queue>
+#include<vector>
+#include<cctype>
+#include<cstring>
+#include<algorithm>
+using namespace std;
+
+int n=0;
+int tj[1010]={0};
+int king[1010]={0};
+int money=0;
+int main(){
+	while(cin>>n){
+		if(!n) break;
+		memset(tj, 0, sizeof(tj));
+		memset(king, 0, sizeof(king));
+		money=0;
+		for(int i=0;i<n;i++) cin>>tj[i];
+		for(int i=0;i<n;i++) cin>>king[i];
+		sort(tj,tj+n);
+		sort(king,king+n);
+		int* pt1=tj;
+		int* pt2=tj+n-1;
+		int* pk1=king;
+		int* pk2=king+n-1;
+		while(pt1<=pt2){
+			if(*pt1<*pk1){
+				money-=200;
+				pt1++;
+				pk2--;
+			}
+			else if(*pt1>*pk1){
+				money+=200;
+				pt1++;
+				pk1++;
+			}
+			else{
+				if(*pt2<*pk2){
+					money-=200;
+					pt1++;
+					pk2--;
+				}else if(*pt2>*pk2){
+					money+=200;
+					pk2--;
+					pt2--;
+				}else if(*pt1==*pk2){
+					pt1++;
+					pk2--;
+					continue;
+				}
+				else{
+					money-=200;
+					pt1++;
+					pk2--;
+				}
+			}
+		}
+		cout<<money<<endl;
+	}
+}
