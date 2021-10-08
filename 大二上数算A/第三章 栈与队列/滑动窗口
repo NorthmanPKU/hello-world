@@ -1,0 +1,114 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+#include <deque>
+#define mm 1000010
+
+using namespace std;
+int a[mm]={0};
+//int mmax[mm]={0};
+//int mmin[mm]={0};
+deque<int> q;
+int main(){
+	int n,k;
+	cin>>n>>k;
+	for(int i=0;i<n;i++) cin>>a[i];
+
+	int headloc=0;
+	for(int i=0;i<n;i++){
+		while(!q.empty()&&q.back()>a[i]){
+			q.pop_back();
+		}
+		//if(q.empty()) headloc=i;
+		q.push_back(a[i]);
+//		if(!q.empty()&&i-headloc+1>k){
+//			q.pop_front();
+//		}
+//		while(a[headloc]!=q.front()&&headloc<=1000000) headloc++;
+		if(i-headloc>=k&&a[headloc]==q.front()){
+			headloc++;
+			q.pop_front();
+		}
+		if(i-headloc>=k&&a[headloc]!=q.front()) headloc++;
+			
+//		if(i>=k-1) mmin[i+1-k]=q.front();
+		if(i>=k-1&&i!=n-1) cout<<q.front()<<' ';
+		if(i>=k-1&&i==n-1) cout<<q.front()<<endl;
+	}
+	q.clear();
+	headloc=0;
+	for(int i=0;i<n;i++){
+		while(!q.empty()&&q.back()<a[i]){
+			q.pop_back();
+		}
+		//if(q.empty()) headloc=i;
+		q.push_back(a[i]);
+//		if(!q.empty()&&i-headloc+1>k){
+//			q.pop_front();
+//		}
+//		while(a[headloc]!=q.front()&&headloc<=1000000) headloc++;
+		if(i-headloc>=k&&a[headloc]==q.front()){
+			headloc++;
+			q.pop_front();
+		}
+		if(i-headloc>=k&&a[headloc]!=q.front()) headloc++;
+//		if(i>=k-1) mmax[i+1-k]=q.front();
+		if(i>=k-1&&i!=n-1) cout<<q.front()<<' ';
+		if(i>=k-1&&i==n-1) cout<<q.front()<<endl;
+	}
+//	for(int i=0;i<n-k+1;i++) cout<<mmin[i]<<" \n"[i==n-k];
+//	cout<<endl;
+//	for(int i=0;i<n-k+1;i++) cout<<mmax[i]<<" "[i==n-k];
+	return 0;
+}
+
+//#include<iostream>
+//#include<iomanip>
+//#include<cmath>
+//#include <deque>
+//#define mm 1000010
+//
+//using namespace std;
+//int a[mm]={0};
+////int mmax[mm]={0};
+////int mmin[mm]={0};
+//int q[mm]={0};
+//int l=1,r=0;
+//int main(){
+//	int n,k;
+//	cin>>n>>k;
+//	for(int i=0;i<n;i++) cin>>a[i];
+//
+//	int headloc=0;
+//	for(int i=0;i<n;i++){
+//		while(!(l>r)&&q[r]>a[i]){
+//			r--;
+//		}
+//		q[++r]=(a[i]);
+//
+//		if(i-headloc>=k&&a[headloc]==q[l]){
+//			headloc++;
+//			l++;
+//		}
+//		if(i-headloc>=k&&a[headloc]!=q[l]) headloc++;
+//
+//		if(i>=k-1) cout<<q[l]<<' ';
+//	}
+//	cout<<endl;
+//	l=1;r=0;
+//	headloc=0;
+//	for(int i=0;i<n;i++){
+//		while(!(l>r)&&q[r]<a[i]){
+//			r--;
+//		}
+//		//if((l>r)) headloc=i;
+//		q[++r]=(a[i]);
+//		if(i-headloc>=k&&a[headloc]==q[l]){
+//			headloc++;
+//			l++;
+//		}
+//		if(i-headloc>=k&&a[headloc]!=q[l]) headloc++;
+//		if(i>=k-1) cout<<q[l]<<' ';
+//	}
+//	return 0;
+//}
