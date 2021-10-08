@@ -1,0 +1,87 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+#include <string>
+#include<memory.h>
+#define mm 1000010
+
+using namespace std;
+
+string s;
+int num[610]={0};
+int numcnt=-1;
+char sign[610]={0};
+int signcnt=-1;
+bool lastoneisnum=0;
+void calc(char c){
+	switch (c) {
+		case '+':
+			signcnt--;
+			num[numcnt-1]=num[numcnt-1]+num[numcnt];
+			numcnt--;
+			break;
+		case '-':
+			signcnt--;
+			num[numcnt-1]=num[numcnt-1]-num[numcnt];
+			numcnt--;
+			break;
+		case '*':
+			signcnt--;
+			num[numcnt-1]=num[numcnt-1]*num[numcnt];
+			numcnt--;
+			break;
+		default:
+			signcnt--;
+			num[numcnt-1]=num[numcnt-1]/num[numcnt];
+			numcnt--;
+			break;
+	}
+	return;
+}
+int main(){
+	int n=0;
+	cin>>n;
+	while(n--){
+		memset(num, 0, sizeof(num));
+		numcnt=-1;
+		memset(sign, 0, sizeof(sign));
+		signcnt=-1;
+		lastoneisnum=0;
+		s.clear();
+		cin>>s;
+		//cout<<s.length()<<endl;
+		for(int i=0;i<s.length();i++){
+			if(s[i]>='0'&&s[i]<='9'){//(((30-23*(34+43-18*33/4-3/2+3*4*(4+1)))-9/3+3))
+				if(lastoneisnum){
+					num[numcnt]=num[numcnt]*10+s[i]-'0';
+				}
+				else num[++numcnt]=s[i]-'0';
+				lastoneisnum=1;
+			}
+			else{
+				lastoneisnum=0;
+				if(s[i]=='(') sign[++signcnt]='(';
+				else if(s[i]=='*'||s[i]=='/'){
+					while(signcnt>=0&&(sign[signcnt]=='*'||sign[signcnt]=='/')) calc(sign[signcnt]);
+					sign[++signcnt]=s[i];
+				}
+				else if(s[i]=='+'||s[i]=='-'){
+					
+					while(signcnt>=0&&(sign[signcnt]=='*'||sign[signcnt]=='/'||sign[signcnt]=='-'||sign[signcnt]=='+')) calc(sign[signcnt]);
+				//	while(signcnt>=0&&(sign[signcnt]=='-'||sign[signcnt]=='+')) calc(sign[signcnt]);
+					sign[++signcnt]=s[i];
+				}
+				else if(s[i]==')'){
+					while(sign[signcnt]!='(') calc(sign[signcnt]);
+					signcnt--;
+				}
+			}
+		}
+		while(signcnt>=0){
+			calc(sign[signcnt]);
+		}
+		cout<<num[0]<<endl;
+	}
+	return 0;
+}
+//(((3+4+5*4*(3+4)/5)*5)-2/5+4)-1
