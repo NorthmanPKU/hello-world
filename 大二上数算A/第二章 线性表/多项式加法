@@ -1,0 +1,65 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+#include<memory.h>
+#define MAX 0x3f3f3f3f;
+
+using namespace std;
+
+struct node{
+	int v;
+	int e;
+	node* pnext;
+};
+
+void nodeinsert(int v,int e,node *ph){
+	node* tp=ph;
+	while((e<tp->e)&&(tp->pnext!=NULL)&&(tp->pnext->e>=e)){
+		tp=tp->pnext;
+	}
+	if(tp->e==e) tp->v+=v;
+	else{
+		node* newp=new node;
+		newp->v=v;
+		newp->e=e;
+		newp->pnext=tp->pnext;
+		tp->pnext=newp;
+	}
+}
+
+void node_output(node* p){
+	
+	if(p->v!=0) cout<<"[ "<<p->v<<" "<<p->e<<" ] ";
+	if(p->pnext==NULL){
+		cout<<endl;
+		return;
+	}
+	else{
+		node_output(p->pnext);
+	}
+}
+
+int main(){
+	int n=0;
+	cin>>n;
+	while(n--){
+		node* phead=new node;
+		phead->e=MAX;
+		phead->v=0;
+		phead->pnext=NULL;
+		int x=0,e=0;
+		cin>>x>>e;
+		while(e>=0){
+			nodeinsert(x, e, phead);
+			cin>>x>>e;
+		}
+		cin>>x>>e;
+		while(e>=0){
+			nodeinsert(x, e, phead);
+			cin>>x>>e;
+		}
+		node_output(phead->pnext);
+	}
+	
+	return 0;
+}
