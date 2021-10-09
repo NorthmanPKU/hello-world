@@ -1,0 +1,84 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+#include<memory.h>
+#define MAX 0x3f3f3f3f;
+
+using namespace std;
+
+void show(long long *p,long long n){
+	for(long long i=1;i<=n;i++){
+		cout<<*(p+i)<<" ";
+	}
+	cout<<endl;
+}
+
+long long a[100000]={0};
+long long b[100000]={0};
+long long c[100000]={0};
+
+long long pow(long long n){
+	long long r=1;
+	while(n--) r*=10;
+	return r;
+}
+long long p[8]={0};
+int solve(int n){
+	int i=1;
+	while(c[i]<n) i++;
+	int pos=n-c[i-1];
+	int len=0;
+	for(i=1;len<pos;i++)
+		len+=(int)log10((double)i)+1;
+	return (i-1)/(int)pow((double)10,len-pos)%10;
+}
+
+int main(){
+	for(long long i=0;i<8;i++) p[i]=pow(i);
+	long long t=1;
+	for(long long i=1;i<60000;i++){
+		while(1){
+			if(i<p[t]&&i>=p[t-1]){
+				a[i]=t;
+				t=1;
+				break;
+			}
+			t++;
+		}
+	}
+	b[1]=1;
+	for(long long i=2;i<60000;i++){
+		b[i]=a[i]+b[i-1];
+	}
+	//show(b,120);
+	c[1]=1;
+	for(long long i=2;i<60000;i++){
+		c[i]=b[i]+c[i-1];
+	}
+	//show(c,120);
+	long long n=0;
+	cin>>n;
+	long long k=0;
+	while(n--){
+		cin>>k;
+		cout<<solve(k)<<endl;
+	}
+	return 0;//////////////////////////////////////////////////////////////这一下的都是废代码 其实至今也没太搞懂为什么过不了 总是runtime error 可能是lower_bound的锅？？？？
+	while(n--){
+		long long k=0;
+		cin>>k;
+		long long loc=lower_bound(c, c+40000, k)-c;
+		//cout<<"in the largest part of "<<loc<<endl;
+		long long locc=k-c[loc-1];
+		//cout<<"after minu locc=="<<locc<<endl;
+		long long loccc=lower_bound(b, b+loc, locc)-b;
+		//cout<<"in the large part of "<<loccc<<endl;
+		long long looc=locc-b[loccc-1];
+		//locc++;
+		long long kkk=a[locc]-looc;
+		for(long long i=0;i<kkk;i++) locc/=10;
+		cout<<locc%10<<endl;
+	}
+		
+	return 0;
+}
