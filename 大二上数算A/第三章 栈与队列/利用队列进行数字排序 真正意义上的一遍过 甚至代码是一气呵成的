@@ -1,0 +1,66 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+#include <string>
+#include<memory.h>
+#include <deque>
+#define mm 1000010
+
+using namespace std;
+
+deque<int> ds[10];
+deque<int> nums;
+deque<int> ls;
+
+int count_length(int n){
+	return (int)log10((double)n)+1;
+}
+
+int get_nth(int n,int num){
+	if(n>count_length(num)) return 0;
+	n--;
+	while(n--){
+		num/=10;
+	}
+	return num%10;
+}
+
+int a[1005]={0};
+int l[1005]={0};
+int main(){
+//	for(int i=0;i<10;i++){
+//		ds[i]=new deque<int>;
+//	}
+	int n=0,t=0,maxl=0;
+	cin>>n;
+	for(int i=0;i<n;i++){
+		cin>>t;
+		nums.push_back(t);
+		ls.push_back(count_length(t));
+		maxl=max(maxl,count_length(t));
+	}
+	for(int i=1;i<=maxl;i++){
+		cout<<"Step"<<i<<"."<<endl;
+		for(int j=0;j<n;j++){
+			t=nums.front();
+			ds[get_nth(i, t)].push_back(t);
+			nums.pop_front();
+		}
+		for(int j=0;j<10;j++){
+			cout<<"Queue"<<j<<":";
+			while(!ds[j].empty()){
+				t=ds[j].front();
+				cout<<t<<" ";
+				nums.push_back(t);
+				ds[j].pop_front();
+			}
+			cout<<endl;
+		}
+	}
+	while(!nums.empty()){
+		cout<<nums.front()<<" ";
+		nums.pop_front();
+	}
+	
+	return 0;
+}
