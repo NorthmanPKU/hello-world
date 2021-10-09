@@ -1,0 +1,45 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+
+using namespace std;
+
+bool judge(int n,int x){
+	return (n>>x)&1;
+}
+
+int a[100001]={0};
+int main(){
+	int n,m,t;
+	char c;
+	cin>>n>>m;
+	for(int i=0;i<n;i++) cin>>a[i];
+	for(int i=0;i<m;i++){
+		//for(int i=0;i<n;i++) cout<<a[i]<<" ";
+		//cout<<endl;
+		cin>>c>>t;
+		//cout<<"t=="<<t<<endl;
+		if(c=='Q'){
+			int cnt=0;
+			for(int j=0;j<n;j++){
+				if(judge(a[j], t)) cnt++;
+			}
+			cout<<cnt<<endl;
+		}
+		else{
+			
+			
+			//for(int i=0;i<n;i++) cout<<a[i]<<" ";
+			//cout<<endl;
+			for(int j=0;j<n;j++) {
+				//cout<<"a["<<j<<"]=="<<a[j]<<endl;
+				//cout<<"t=="<<t<<endl;
+				a[j]=(a[j]+t)%65535;
+				//cout<<"a["<<j<<"]=="<<a[j]<<endl;
+			}
+			//for(int i=0;i<n;i++) cout<<a[i]<<" ";
+		}
+	}
+	
+	return 0;
+}
