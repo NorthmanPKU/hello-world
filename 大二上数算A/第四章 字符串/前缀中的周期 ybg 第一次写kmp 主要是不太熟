@@ -1,0 +1,49 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+using namespace std;
+
+int nexts[1000010]={0};
+struct ansnode{
+	int det;
+	int n;
+}ans[1000010];
+
+int main(){
+	int l=0;
+	cin>>l;
+	int cnt=0;
+	string s;
+	while(l){
+		int anscnt=0;
+		
+		//memcpy(nexts,0,sizeof(nexts));
+		cnt++;
+		cin>>s;
+		//求next数组
+		nexts[0]=-1;
+		int sl=s.length();
+		int k=-1;
+		for(int i=0;i<sl;){
+			while(k!=-1&&s[i]!=s[k])
+				k=nexts[k];
+			k++;i++;
+			nexts[i]=k;
+			if(i>1){
+				int d=k+k-i;
+				if(d>=0&&i%(i-k)==0) ans[anscnt++]={i,i/(i-k)};
+				
+			}
+		}
+
+		cout<<"Test case #"<<cnt<<endl;
+		for(int i=0;i<anscnt;i++){
+			cout<<ans[i].det<<" "<<ans[i].n<<endl;
+		}
+		cout<<endl;
+		cin>>l;
+	}
+	return 0;
+}
