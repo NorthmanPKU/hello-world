@@ -1,0 +1,85 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+using namespace std;
+
+string dict[10010];
+string ask[55];
+int sit[55][10010]={0};
+
+int similiar(string a,string b){
+	int la=a.length();
+	int lb=b.length();
+	bool s=0;
+	if(la==lb){
+		for(int i=0;i<la;i++){
+			string tem1=a;
+			string tem2=b;
+			tem1.erase(i,1);
+			tem2.erase(i,1);
+			if(tem1==tem2){
+				s=1;
+				break;
+			}
+		}
+	}
+	else if(la==lb+1||lb==la+1){
+		if(la==lb+1){
+			string tem=a;
+			a=b;
+			b=tem;
+		}
+		string t;
+		int ml=max(la, lb);
+		for(int i=0;i<ml;i++){
+			t=b;
+			t.erase(i,1);
+			if(t==a){
+				s=1;
+				break;
+			}
+		}
+	}
+	
+	return s;
+}
+
+int main(){
+	
+//	similiar("abcdefg", "abcefg");
+//	return 0;
+	int dictcnt=0;
+	int askcnt=0;
+	while(1){
+		cin>>dict[dictcnt++];
+		if(dict[dictcnt-1]=="#") break;
+	}
+	while(1){
+		cin>>ask[askcnt++];
+		if(ask[askcnt-1]=="#") break;
+	}
+	dictcnt--;
+	askcnt--;
+	for(int i=0;i<askcnt;i++){
+		int cntsimi=0;
+		for(int j=0;j<dictcnt;j++){
+			if(ask[i]==dict[j]){
+				cout<<ask[i]<<" is correct"<<endl;
+				cntsimi=-1;
+				break;
+			}
+			else if(similiar(ask[i], dict[j])){
+				sit[i][cntsimi++]=j;
+			}
+		}
+		if(cntsimi!=-1){
+			cout<<ask[i]<<": ";
+			for(int k=0;k<cntsimi;k++) cout<<dict[sit[i][k]]<<" ";
+			cout<<endl;
+			
+		}
+	}
+	return 0;
+}
