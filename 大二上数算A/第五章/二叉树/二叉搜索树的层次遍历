@@ -1,0 +1,60 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+using namespace std;
+#define M 66000
+int backseq[2*M]={0};
+int midseq[2*M]={0};
+
+struct node{
+	int val;
+	node* left;
+	node* right;
+};
+
+void build(int n,node* root){
+	if(n==root->val) return;
+	if(n>root->val){
+		if(root->right)
+		build(n, root->right);
+		else{
+			root->right=new node{n,NULL,NULL};
+		}
+	}
+	else if(n<root->val){
+		if(root->left)
+		build(n, root->left);
+		else{
+			root->left=new node{n,NULL,NULL};
+		}
+	}
+	return;
+}
+
+
+
+int main(){
+	int n=0;
+	cin>>n;
+	node* root=new node{n,NULL,NULL};
+	while(cin>>n){
+		build(n, root);
+		if(cin.get()=='\n') break;
+	}
+	//cout<<1<<endl;
+	queue<node*> q;
+	q.push(root);
+	while(!q.empty()){
+		node* tem=q.front();q.pop();
+		if(tem->left) q.push(tem->left);
+		if(tem->right) q.push(tem->right);
+		cout<<tem->val;
+		if(!q.empty()) cout<<" ";
+	}
+	
+	
+	return 0;
+}
