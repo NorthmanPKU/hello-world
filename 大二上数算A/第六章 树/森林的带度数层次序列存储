@@ -1,0 +1,81 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+using namespace std;
+#define M 66000
+int backseq[2*M]={0};
+int midseq[2*M]={0};
+
+struct node{
+	char val;
+	node* lson;
+	node* rsibling;
+};
+char names[27][27]={0};
+int ns[27][27]={0};
+int cnts[27]={0};
+node* build(int n){
+	node* s[100];
+	int indw=-1;
+	int inds=0;
+	int l=cnts[n]-1;
+	node* root;
+	for(int i=l;i>=0;i--){
+		node* p=new node{names[n][i], NULL,NULL};
+		int sonnum=ns[n][i];
+		if(sonnum==0){
+			s[++indw]=p;
+		}
+		else{
+			node* son=s[inds+sonnum-1];
+			p->lson=son;
+			for(int j=inds+sonnum-2;j>=inds;j--){
+				son->rsibling=s[j];
+				son=son->rsibling;
+			}
+			inds+=sonnum;
+			s[++indw]=p;
+		}
+		if(!i) root=p;
+	}
+	return root;
+}
+
+void travelsal(node *root){
+	node* p=root->lson;
+	while(p){
+		travelsal(p);
+		p=p->rsibling;
+	}
+	if(root->val)
+	cout<<root->val<<" ";
+}
+
+
+
+int main(){
+	int n=0;
+	cin>>n;
+	
+	for(int i=0;i<n;i++){
+		while(1){
+			cin>>names[i][cnts[i]];
+			cin>>ns[i][cnts[i]++];
+			if(cin.get()=='\n') break;
+		}
+	}
+	node* root=new node{'\0',NULL,NULL};
+	node* cur=build(0);
+	root->lson=cur;
+	for(int i=1;i<n;i++){
+		cur->rsibling=build(i);
+		cur=cur->rsibling;
+	}
+	travelsal(root);
+	
+	return 0;
+}
