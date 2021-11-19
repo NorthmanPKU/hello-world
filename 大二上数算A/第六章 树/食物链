@@ -1,0 +1,78 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+using namespace std;
+#define M 50010
+int p[3*M];
+int n,k;
+int find(int x){
+	if(x==p[x]) return x;
+	else{
+		p[x]=find(p[x]);
+	}
+	return p[x];
+}
+void combine(int a,int b){
+		int fathera=find(a);
+		p[fathera]=find(b);
+}
+
+
+int main(){
+	cin>>n>>k;
+	for(int i=1;i<=3*n;i++) p[i]=i;//init
+	int cnt=0;
+	while(k--){
+//		for(int i=0;i<=2*n;i+=n){
+//			for(int j=1;j<=6;j++) cout<<find(i+j)<<" ";
+//			cout<<endl;
+//		}
+		int op,a1,a2;
+		cin>>op>>a1>>a2;
+//		cout<<"--------------------"<<7-k<<"---------------"<<endl;
+//		cout<<op<<endl;
+		if(a1>n||a2>n){
+			cnt++;
+			continue;
+//			cout<<7-k<<"bomb!!!!!!!"<<endl;
+		}
+		else if(op==1){
+			int f1=find(a1);
+			int f2=find(a2+n);
+			int f3=find(a2+n*2);
+			if(f1==f2||f1==f3){
+				cnt++;
+//				cout<<7-k<<"bomb!!!!!!!"<<endl;
+				continue;
+			}
+			else{
+				combine(a1,a2);
+				combine(a1+n,a2+n);
+				combine(a1+2*n,a2+2*n);
+			}
+		}
+		else{
+			int f1=find(a1);
+			int f2=find(a2+n);
+			int f3=find(a2+n*2);
+			if(find(a1)==find(a2)||find(a1+n)==find(a2)||f1==f3||find(a1+n*2)==find(a2+n)){
+				cnt++;
+//				cout<<7-k<<"bomb!!!!!!"<<endl;
+				continue;
+			}
+			else{
+				combine(a1,a2+n);
+				combine(a1+2*n,a2);
+				combine(a1+n,a2+2*n);
+			}
+		}
+		
+	}
+	cout<<cnt;
+	
+	return 0;
+}
