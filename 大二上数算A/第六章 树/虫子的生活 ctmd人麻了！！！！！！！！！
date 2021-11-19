@@ -1,0 +1,89 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+using namespace std;
+#define M 2000010
+int p[M]={0};
+int resex[M]={0};
+int n,k;
+int find(int x){
+	if(x==p[x]) return x;
+	else{
+		p[x]=find(p[x]);
+	}
+	return p[x];
+}
+void combine(int a,int b){
+		int fathera=find(a);
+		p[fathera]=find(b);
+}
+
+
+int main(){
+	int num=0;
+	cin>>num;
+	int tem=num;
+	while(tem--){
+		int ns=0,ne=0;
+		cin>>ns>>ne;
+		for(int i=1;i<=ns;i++){
+			p[i]=i;
+			resex[i]=0;
+		}
+		int a=0,b=0;
+		bool yes=1;
+		while(ne--){
+			cin>>a>>b;
+if(yes){
+			if(find(a)==find(b)){
+				yes=0;
+        //break;
+
+			}
+			if(resex[a]==0&&resex[b]==0){
+				resex[a]=b;
+				resex[b]=a;
+			}
+			else if(resex[a]&&!resex[b]){
+				combine(b, resex[a]);
+				resex[b]=a;
+			}
+			else if(!resex[a]&&resex[b]){
+				combine(a, resex[b]);
+				resex[a]=b;
+			}
+			else{
+				combine(resex[b], a);
+				combine(resex[a], b);
+			}
+			}
+		}
+		cout<<"Scenario #"<<num-tem<<":"<<endl;
+		if(yes) cout<<"No suspicious bugs found!"<<endl;
+		else cout<<"Suspicious bugs found!"<<endl;
+		cout<<endl;
+	}
+	return 0;
+}
+
+
+
+//4
+//3 3
+//1 2
+//2 3
+//1 3
+//4 2
+//1 2
+//3 4
+//3 3
+//1 2
+//2 3
+//1 3
+//4 2
+//1 2
+//3 4
