@@ -1,0 +1,129 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+using namespace std;
+#define M 2000010
+bool visited[26]={0};
+
+struct edge{
+	int from;
+	int to;
+	int w;
+	edge* next;
+};
+edge* ls[26];
+edge* psit[26];
+void debb(char c){
+	int n=c-'A';
+	edge *p=ls[n];
+	cout<<c<<":";
+	while(p->next){
+		cout<<"("<<p->next->from<<","<<p->next->to<<","<<p->next->w<<") ";
+		p=p->next;
+	}
+	cout<<endl;
+	
+}
+
+int l2i(char c){
+	return c-'A';
+}
+
+vector<edge*> h;
+bool cmp(edge* a,edge* b){
+	return a->w>b->w;
+}
+
+int main(){
+	int n=0,ans=0;
+	cin>>n;
+	for(int i=0;i<=n;i++){
+		ls[i]=new edge{-1,-1,-1,NULL};
+		psit[i]=ls[i];
+	}
+	for(int i=0;i<n-1;i++){
+		
+		char c;
+		int m=0,tem=0;
+		cin>>c>>m;
+		int cn=c-'A';
+		
+		//ls[cn]=new edge;
+		psit[cn]=ls[cn];
+//		if(i==6){
+//			cout<<"yes";
+//		}
+		for(int j=0;j<m;j++){
+			char cc;
+			cin>>cc>>tem;
+			int cnn=cc-'A';
+			edge* p1=ls[cn];
+			edge* p2=ls[cnn];
+			while(p1->next) p1=p1->next;
+			while(p2->next) p2=p2->next;
+//			psit[cn]->next=new edge{cn,cnn,tem,NULL};
+			p1->next=new edge{cn,cnn,tem,NULL};
+//			psit[cnn]->next=new edge{cnn,cn,tem,NULL};
+			p2->next=new edge{cnn,cn,tem,NULL};
+//			psit[cn]=psit[cn]->next;
+//			psit[cnn]=psit[cnn]->next;
+			
+		}
+		
+	}
+//	for(int i=0;i<n;i++){
+//		debb('A'+i);
+//	}
+	//ls[n-1]=new edge;
+	//ls[n-1]->next=NULL;
+	int index=0;
+	while(!ls[index]->next){
+		index++;
+	}
+	visited[index]=1;
+	edge *e=NULL;
+	int cnt=0;
+	do{
+		bool found=0;
+		for(e=ls[index]->next;e!=NULL;e=e->next){
+			if(!visited[e->to]){
+				h.push_back(e);
+				push_heap(h.begin(), h.end(), cmp);
+//				vector<edge*>::iterator i;
+//				for(i=h.begin();i!=h.end();i++){
+//					cout<<(*i)->w<<" ";
+//				}
+//				cout<<endl;
+			}
+		}
+		edge* p=h.front();
+		while(!h.empty()){
+			p=h.front();
+			pop_heap(h.begin(), h.end(), cmp);
+			h.pop_back();
+//			vector<edge*>::iterator i;
+//			for(i=h.begin();i!=h.end();i++){
+//				cout<<(*i)->w<<" ";
+//			}
+//			cout<<endl;
+			if(!visited[p->to]){
+				found=1;
+				break;
+			}
+		}
+		if(found){
+			visited[p->to]=1;
+			ans+=p->w;
+//			cout<<"找到了"<<p->w<<" now we have "<<ans<<endl;
+			index=p->to;
+			cnt++;
+		}
+		else break;
+	}while(cnt<n-1);
+	cout<<ans;
+	return 0;
+}
