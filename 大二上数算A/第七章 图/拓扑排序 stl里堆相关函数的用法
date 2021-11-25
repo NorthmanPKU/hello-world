@@ -1,0 +1,66 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+using namespace std;
+#define M 2000010
+
+struct edge{
+	//int from;
+	int to;
+	edge* next;
+};
+
+edge* edges[M];
+int indegree[M];
+//queue<int> q;
+vector<int> heap;
+int main(){
+	int n=0,ne=0;
+	cin>>n>>ne;
+	for(int i=1;i<n+1;i++){
+		edges[i]=new edge{-1,NULL};
+	}
+	int f,t;
+	edge* p=NULL;
+	for(int i=0;i<ne;i++){
+		cin>>f>>t;
+		indegree[t]++;
+		p=edges[f];
+		while(p->next) p=p->next;
+		p->next=new edge{t,NULL};
+	}
+	int cnt=0;
+	for(int i=1;i<n+1;i++){
+		if(indegree[i]==0){
+			//q.push(i);
+			heap.push_back(i);
+			break;
+		}
+	}
+	int tem;
+	while(!heap.empty()){
+		make_heap(heap.begin(), heap.end(),greater<int>());
+		tem=heap.front();
+		pop_heap(heap.begin(), heap.end(),greater<int>());
+		heap.pop_back();
+		cout<<"v"<<tem<<" ";
+		indegree[tem]=-1;
+		p=edges[tem]->next;
+		while(p){
+			indegree[p->to]--;
+			//if(indegree[p->to]==0) q.push(p->to);
+			p=p->next;
+		}
+		for(int i=1;i<=n;i++){
+			if(indegree[i]==0) {
+				heap.push_back(i);
+				push_heap(heap.begin(), heap.end(),greater<int>());
+				indegree[i]=-1;}
+		}
+	}
+	return 0;
+}
