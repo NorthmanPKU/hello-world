@@ -1,0 +1,77 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+using namespace std;
+#define M 2000010
+int ans=0;
+vector<int> rows[9];
+int jdg=0;
+int n,k;
+
+bool judge(int n){
+	return 1&(jdg>>n);
+}
+void add(int n){
+	jdg|=1<<n;
+}
+void del(int n){
+	jdg&=~(1<<n);
+}
+
+void dfs(int d,int lastones){
+	//if(d==0) ans=0;
+	if(lastones>n-d||lastones<0) return;
+	if(lastones==0){
+		ans++;
+		//cout<<"in dfs ans=="<<ans<<endl;
+		return;
+	}
+//	if(d==n-1&&lastones==1){
+//		for(int i=0;i<rows[d].size();i++){
+//			if(judge(rows[d][i])) continue;
+//			else{
+//				ans++;
+//			}
+//		}
+//	}
+	else{
+		for(int i=0;i<rows[d].size();i++){
+			if(judge(rows[d][i])) continue;
+			else{
+				add(rows[d][i]);
+				dfs(d+1,lastones-1);
+				del(rows[d][i]);
+			}
+		}
+		dfs(d+1, lastones);}
+	return;
+}
+
+int main(){
+
+	cin>>n>>k;
+	do{
+		for(int i=0;i<9;i++){
+			rows[i].clear();
+		}
+		char c;
+		for(int i=0;i<n;i++){
+			for(int j=0;j<n;j++){
+				cin>>c;
+				if(c=='#') rows[i].push_back(j);
+			}
+		}
+		jdg=0;
+		dfs(0,k);
+		cout<<ans<<endl;
+		//cout<<"before 0 ans="<<ans<<endl;
+		ans=0;
+		//cout<<"after 0 ans="<<ans<<endl;
+		cin>>n>>k;
+	}while(n>0);
+	return 0;
+}
