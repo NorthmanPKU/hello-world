@@ -1,0 +1,97 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+using namespace std;
+#define M 2000010
+char dnas[105][55]={0};
+char dnas_copy[105][55]={0};
+int seq[105]={0};
+int counts[105]={0};
+struct DNA{
+	int no;
+	char c[60];
+	friend int operator<(DNA a,DNA b){
+		if(strcmp(a.c, b.c)==0) return a.no<b.no;
+		else return strcmp(a.c, b.c)<0;
+	}
+};
+
+int merge_sort(int i,int j,char c[]){
+	if(i==j) return 0;
+	//for(int k=i;k<=j;k++) cout<<c[k];
+	//cout<<"中有";
+	int mid=(i+j)/2;
+	int ans=0;
+	ans+=merge_sort(i,mid,c);
+	ans+=merge_sort(mid+1, j, c);
+	char tem[105]={0};
+	int cnt1=i,cnt2=mid+1,cnt=0;
+	while(cnt1<=mid&&cnt2<=j){
+		if(c[cnt2]<c[cnt1]){
+			ans+=mid-cnt1+1;
+			tem[cnt++]=c[cnt2];
+			cnt2++;
+		}
+		else{
+			tem[cnt++]=c[cnt1];
+			cnt1++;
+		}
+	}
+	while(cnt2<=j){
+		tem[cnt++]=c[cnt2];
+		cnt2++;
+	}
+	while(cnt1<=mid){
+		tem[cnt++]=c[cnt1];
+		cnt1++;
+	}
+	for(int k=i;k<=j;k++) c[k]=tem[k-i];
+	//cout<<ans<<"个逆序对"<<endl;
+	return ans;
+}
+
+int main(){
+	int m,n;
+	cin>>n>>m;
+	for(int i=0;i<m;i++){
+		for(int j=0;j<n;j++) cin>>dnas[i][j];
+		seq[i]=i;
+	}
+//	for(int i=0;i<m;i++){
+//		for(int j=0;j<n;j++){
+//			cout<<dnas[i][j];
+//		}
+//		cout<<endl;
+//	}
+	memcpy(dnas_copy, dnas, sizeof(dnas));
+//	for(int i=0;i<m;i++){
+//		for(int j=0;j<n;j++){
+//			cout<<dnas_copy[i][j];
+//		}
+//		cout<<endl;
+//	}
+	for(int i=0;i<m;i++){
+		counts[i]=merge_sort(0, n-1, dnas_copy[i]);
+		//cout<<counts[i]<<" ";
+	}
+	for(int i=m-1;i>0;i--){
+		for(int j=0;j<i;j++){
+			if(counts[j]>counts[j+1]){
+				swap(counts[j],counts[j+1]);
+				swap(seq[j], seq[j+1]);
+			}
+		}
+	}
+	for(int i=0;i<m;i++){
+		for(int j=0;j<n;j++){
+			cout<<dnas[seq[i]][j];
+		}
+		cout<<endl;
+	}
+	
+	return 0;
+}
