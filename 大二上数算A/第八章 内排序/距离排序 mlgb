@@ -1,0 +1,73 @@
+#include <memory.h>
+#include <algorithm>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
+#include <queue>
+#include <stack>
+#include <string>
+using namespace std;
+#define M 2000010
+
+struct node {
+	int x, y, z;
+	int seq;
+} nodes[12];
+
+struct dis {
+	node* n1;
+	node* n2;
+	double d;
+	int seq;
+} dises[100];
+int mycmp(dis a, dis b) {
+	//	if(a.d==b.d){
+	//		return a.seq<b.seq;
+	//	}
+	//	else return a.d>b.d;
+	return a.d > b.d;
+}
+
+double calc(node a, node b) {
+	return sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y) +
+				(a.z - b.z) * (a.z - b.z));
+}
+
+int main() {
+	int n = 0;
+	cin >> n;
+	for (int i = 0; i < n; i++) {
+		cin >> nodes[i].x >> nodes[i].y >> nodes[i].z;
+		nodes[i].seq = i;
+	}
+	int cnt = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			if (i == j)
+				continue;
+			dises[cnt].d = calc(nodes[i], nodes[j]);
+			dises[cnt].seq = min(nodes[i].seq, nodes[j].seq);
+			dises[cnt].n1 = &nodes[i];
+			dises[cnt++].n2 = &nodes[j];
+		}
+	}
+	// sort(dises,dises+cnt,mycmp);
+	for (int i = cnt - 1; i > 0; i--) {
+		for (int j = 0; j < i; j++) {
+			if (dises[j].d < dises[j + 1].d)
+				swap(dises[j], dises[j + 1]);
+		}
+	}
+	for (int i = 0; i < cnt; i++) {
+		if (dises[i].n1->seq < dises[i].n2->seq)
+			cout << "(" << dises[i].n1->x << "," << dises[i].n1->y << ","
+				 << dises[i].n1->z << ")-(" << dises[i].n2->x << ","
+				 << dises[i].n2->y << "," << dises[i].n2->z << ")=" << fixed
+				 << setprecision(2) << dises[i].d << endl;
+		else
+			cout << "(" << dises[i].n2->x << "," << dises[i].n2->y << ","
+				 << dises[i].n2->z << ")-(" << dises[i].n1->x << ","
+				 << dises[i].n1->y << "," << dises[i].n1->z << ")=" << fixed
+				 << setprecision(2) << dises[i].d << endl;
+	}
+}
