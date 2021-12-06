@@ -1,0 +1,80 @@
+#include<iostream>
+#include<iomanip>
+#include<cmath>
+#include <deque>
+#include <string>
+#define mm 1000010
+
+using namespace std;
+string s[6];
+
+int main(){
+	int n=0;
+	cin>>n;
+	int minindex=mm,minl=mm;
+	for(int i=0;i<n;i++){
+		cin>>s[i];
+		if(minl>s[i].length()){
+			minl=s[i].length();
+			minindex=i;
+		}
+	}
+	string x=s[minindex];
+	int r=minl,le=1,mid=0,l=0;
+	int ans=0;
+	while(le<=r){
+		mid=(le+r)/2;
+		l=mid;
+	//for(int l=minl;l>=1;l--){
+		bool lfind=0;
+		for(int i=0;i<=minl-l;i++){
+			string tem=x.substr(i,l);
+				//cout<<tem<<endl;
+			int nexts[2001]={0};
+			nexts[0]=-1;
+			int ii=0,ik=-1;
+			while(ii<l-1){
+				while(tem[ii]!=tem[ik]&&ik>=0){
+					ik=nexts[ik];
+				}
+				ii++;ik++;
+				if(tem[ii]==tem[ik]){
+					nexts[ii]=nexts[ik];
+				}
+				else nexts[ii]=ik;
+			}
+			bool yes=1;
+			for(int k=0;k<n;k++){
+				if(k==minindex) continue;
+				int tm=0,ts=0;
+				int ls=s[k].length();
+				while(tm<=l-1&&ts<=ls-1){
+					if(s[k][ts]==tem[tm]||tm<0){
+						tm++;
+						ts++;
+					}
+					else{
+						tm=nexts[tm];
+					}
+				}
+				if(tm>=l) continue;
+				else{
+					yes=0;
+					break;
+				}
+			}
+			if(yes){
+				lfind=1;
+				break;
+			}
+		}
+		if(lfind){
+			le=mid+1;
+			ans=mid;
+		}
+		else r=mid-1;
+	}
+	cout<<ans;
+	return 0;
+}
+
