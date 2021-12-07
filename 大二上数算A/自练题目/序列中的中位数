@@ -1,0 +1,59 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include<algorithm>
+#include<memory.h>
+#include <queue>
+#include <stack>
+#include <vector>
+using namespace std;
+#define M 100010
+int a[M]={0};
+
+int main(){
+	int n=0;
+	cin>>n;
+	for(int i=0;i<n;i++) cin>>a[i];
+	vector<int> k1;
+	vector<int> k2;
+	cout<<a[0]<<endl;
+	k1.push_back(a[0]);
+	int mid=a[0];
+	for(int i=0;i<n-2;i+=2){
+		//cout<<"i="<<i<<endl;
+		if(a[i+1]>mid){
+			k2.push_back(a[i+1]);
+			push_heap(k2.begin(), k2.end(), greater<>());
+		}
+		else{
+			k1.push_back(a[i+1]);
+			push_heap(k1.begin(), k1.end(), less<>());
+		}
+		if(a[i+2]>mid){
+			k2.push_back(a[i+2]);
+			push_heap(k2.begin(), k2.end(), greater<>());
+		}
+		else{
+			k1.push_back(a[i+2]);
+			push_heap(k1.begin(), k1.end(), less<>());
+		}
+		while(k1.size()>k2.size()+1){
+			int tem=k1.front();
+			pop_heap(k1.begin(), k1.end(), less<>());
+			k1.pop_back();
+			k2.push_back(tem);
+			push_heap(k2.begin(), k2.end(), greater<>());
+		}
+		while(k2.size()>k1.size()+1){
+			int tem=k2.front();
+			pop_heap(k2.begin(), k2.end(), greater<>());
+			k2.pop_back();
+			k1.push_back(tem);
+			push_heap(k1.begin(), k1.end(), less<>());
+		}
+		if(k1.size()>k2.size()) mid=k1.front();
+		else mid=k2.front();
+		cout<<mid<<endl;
+	}
+	return 0;
+}
